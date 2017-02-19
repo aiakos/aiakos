@@ -1,0 +1,4 @@
+PROTOCOLS = [
+	'github',
+	'gitlab',
+]

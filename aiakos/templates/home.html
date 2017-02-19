@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n staticfiles %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12">
+		<h2>{% trans 'Your apps' %}</h2>
+		<div class="row">
+			{% for consent in request.user.userconsent_set.all %}
+				<div class="col-sm-6 col-md-4">
+					<a href="{{consent.client.website_url}}" class="thumbnail">
+						<img alt="100%x200" src="{{consent.client.logo.url}}" style="height: 200px; width: 100%; display: block;">
+						<span class="caption" style="font-size: 2em; text-align: center; width: 100%; display: block; text-decoration: none !important;">
+							{{consent.client}}
+						</span>
+					</a>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+{% endblock %}
