@@ -10,7 +10,7 @@
 		<h2>{% trans 'Log in' %}</h2>
 
 		{% for provider in identity_providers %}
-		<a href="{{provider.login_url}}" class="btn btn-default btn-block">
+		<a href="{{provider.login_url}}?next={{next|urlencode}}" class="btn btn-default btn-block">
 		{% blocktrans trimmed %}
 			Sign in with {{provider}}
 		{% endblocktrans %}
