@@ -9,7 +9,8 @@ assert SECRET_KEY, "Non-empty DJANGO_SECRET_KEY environment variable is required
 
 DEBUG = os.getenv("DEBUG") == "1"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+HOSTNAME = os.getenv("AIAKOS_HOSTNAME", "")
+ALLOWED_HOSTS = [HOSTNAME]
 
 if os.getenv("USE_X_FORWARDED_PROTO", "") == "1":
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -91,3 +92,10 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 STATIC_URL = 'https://storage.googleapis.com/djangocdn/1.10/'
 MEDIA_URL = '/media/'
+
+from django.http.request import HttpRequest
+
+def get_host(self):
+	return HOSTNAME
+
+HttpRequest.get_host = get_host
