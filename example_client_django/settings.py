@@ -30,6 +30,26 @@ DATABASES = {
 	'default': dj_database_url.config(conn_max_age=600, default="sqlite:///" + os.path.join(BASE_DIR, 'example.sqlite3'))
 }
 
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'handlers': {
+		'console': {
+			'class': 'logging.StreamHandler',
+		},
+	},
+	'loggers': {
+		'django': {
+			'handlers': ['console'],
+			'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+		},
+	},
+}
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv("RAVEN_URL"),
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +60,7 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'django_auth_oidc',
+	'raven.contrib.django.raven_compat',
 ]
 
 AUTHENTICATION_BACKENDS = (

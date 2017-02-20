@@ -23,6 +23,26 @@ DATABASES = {
 
 HOME_URL = os.getenv('HOME_URL', '/apps/')
 
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'handlers': {
+		'console': {
+			'class': 'logging.StreamHandler',
+		},
+	},
+	'loggers': {
+		'django': {
+			'handlers': ['console'],
+			'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+		},
+	},
+}
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv("RAVEN_URL"),
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -36,6 +56,7 @@ INSTALLED_APPS = [
 	'oidc_provider',
 	'django_profile_oidc',
 	'django_extauth',
+	'raven.contrib.django.raven_compat',
 ]
 
 AUTHENTICATION_BACKENDS = (
