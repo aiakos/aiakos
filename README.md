@@ -54,3 +54,6 @@ TODO Automatically create root:root user account as a migration.
 
 ## Configuration
 OpenID Clients and external OpenID Providers can be configured in the Django admin panel - available at /admin.
+
+## Example client
+You can find an example client in [example_client_django](example_client_django) subdirectory.
