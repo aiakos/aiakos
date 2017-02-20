@@ -10,7 +10,7 @@
 			{% for consent in request.user.userconsent_set.all %}
 				<div class="col-sm-6 col-md-4">
 					<a href="{{consent.client.website_url}}" class="thumbnail">
-						<img alt="100%x200" src="{{consent.client.logo.url}}" style="height: 200px; width: 100%; display: block;">
+						<img src="{{consent.client.logo.url}}" style="height: 200px; width: 100%; display: block;">
 						<span class="caption" style="font-size: 2em; text-align: center; width: 100%; display: block; text-decoration: none !important;">
 							{{consent.client}}
 						</span>
