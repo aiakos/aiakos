@@ -1,5 +1,7 @@
 .env
 env
+env2
 db.sqlite3
 example.sqlite3
 __pycache__
+*.pyc

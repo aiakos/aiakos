@@ -14,19 +14,19 @@ TODO We're going to support TOTP.
 ## Components
 Currently, this repo contains multiple packages; they'll get split into multiple repos when the project matures.
 
-* [openid_connect](openid_connect) - Low-level Python OIDC Client library + wrappers for legacy protocols
-* [django_profile_oidc](django_profile_oidc) - User profile containing standard OIDC user info
-* [django_extauth](django_extauth) - Federated authentication support for Django, based on openid_connect library.
+* [openid_connect](openid_connect) (Python 2.7/3.x) - Low-level Python OIDC Client library + wrappers for legacy protocols
+* [django_profile_oidc](django_profile_oidc) (Python 3.x) - User profile containing standard OIDC user info
+* [django_extauth](django_extauth) (Python 3.x) - Federated authentication support for Django, based on openid_connect library.
 
 We're also considering following external projects as the core components of Aiakos:
 
-* [django-oidc-provider](https://github.com/juanifioren/django-oidc-provider) - Django OIDC Provider library
+* [django-oidc-provider](https://github.com/juanifioren/django-oidc-provider) (Python 2.7/3.x) - Django OIDC Provider library
 
 ## Client libraries
 Any standards-compliant OpenID Connect library may be used.
 
 We also provide our own library for Django projects:
-* [django_auth_oidc](django_auth_oidc) - Django authentication module for authentication using only a single OpenID Provider
+* [django_auth_oidc](django_auth_oidc) (Python 2.7/3.x) - Django authentication module for authentication using only a single OpenID Provider
 
 ## Deployment
 

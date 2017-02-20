@@ -1,9 +1,13 @@
 import requests
 from requests.auth import HTTPBasicAuth
 from jose import jwt
-from urllib.parse import urlencode
 
-class TokenResponse:
+try:
+	from urllib.parse import urlencode
+except ImportError:
+	from urllib import urlencode
+
+class TokenResponse(object):
 	def __init__(self, data, client=None):
 		self._data = data
 		self._client = client
@@ -27,7 +31,7 @@ class TokenResponse:
 			self._userinfo = userinfo
 			return self._userinfo
 
-class OpenIDClient:
+class OpenIDClient(object):
 	def __init__(self, url, client_id, client_secret):
 		self.url = url
 		self.client_id = client_id
