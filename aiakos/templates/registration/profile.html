@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n static crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+	<div class="col-sm-3">
+		{% if profile.profile.picture %}
+		<img src="{{profile.profile.picture}}" style="width: 100%">
+		{% endif %}
+		{% if profile.profile.name %}
+			<h2>{{profile.profile.name}}</h2>
+			{% if profile.profile.name != profile.username %}
+			<p class="lead">{{profile.username}}</p>
+			{% endif %}
+		{% else %}
+			<h2>{{profile.username}}</h2>
+		{% endif %}
+	</div>
+	<div class="col-sm-5">
+	</div>
+	<div class="col-sm-4">
+		<h3>{% trans 'External identites' %}</h3>
+		{% for ei in user.externalidentity_set.all %}
+		<div class="media">
+			<div class="media-left">
+				{% if ei.profile.profile %}
+				<a href="{{ei.profile.profile}}">
+				{% endif %}
+					<img class="media-object" src="{{ei.profile.picture}}" style="max-height: 50px; max-width: 50px">
+				{% if ei.profile.profile %}
+				</a>
+				{% endif %}
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{{ei.external_name}} @ {{ei.provider}}</h4>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
+{% endblock %}

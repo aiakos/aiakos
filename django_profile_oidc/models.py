@@ -10,13 +10,14 @@ class Profile(models.Model):
 	middle_name = models.CharField(max_length=200, blank=True)
 	nickname = models.CharField(max_length=200, blank=True)
 	preferred_username = models.CharField(max_length=200, blank=True)
+	profile = models.URLField(max_length=200, blank=True)
 	picture = models.URLField(max_length=200, blank=True)
 	website = models.URLField(max_length=200, blank=True)
 	gender = models.CharField(max_length=200, blank=True)
 	birthdate = models.DateField(null=True, blank=True)
 	zoneinfo = models.CharField(max_length=200, blank=True)
 	locale = models.CharField(max_length=200, blank=True)
-	
+
 	email = models.EmailField(blank=True)
 	email_verified = models.BooleanField(default=False)
 

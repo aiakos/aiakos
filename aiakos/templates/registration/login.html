@@ -4,15 +4,20 @@
 {% block content %}
 <div class="row">
 	<div class="col-md-6 col-md-offset-3">
+		<!-- TODO move this if out of the template, and redirect if logged in -->
+		{% if not user.is_authenticated %}
+
 		<h2>{% trans 'Log in' %}</h2>
 
-		{% if user.is_authenticated %}
-		<p class="errornote">
+		{% for provider in identity_providers %}
+		<a href="{{provider.login_url}}" class="btn btn-default btn-block">
 		{% blocktrans trimmed %}
-			You are authenticated as {{user}}. Would you like to login to a different account?
+			Sign in with {{provider}}
 		{% endblocktrans %}
-		</p>
-		{% endif %}
+		</a>
+		{% endfor %}
+
+		<hr/>
 
 		<form method="post">
 			{% csrf_token %}
@@ -24,6 +29,10 @@
 			{% endif %}
 		</form>
 
+		{% else %}
+		<h2>{% trans "You're already logged in." %}</h2>
+		<a href="/" class="btn btn-primary btn-block">{% trans 'Continue' %}</a>
+		{% endif %}
 	</div>
 </div>
 {% endblock %}

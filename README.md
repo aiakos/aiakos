@@ -35,13 +35,14 @@ The recommended way to deploy aiakos is to use the official docker container - [
 ### Deployment configuration
 Deployment configuration should be provided by environment variables:
 
-* DJANGO_SECRET_KEY - random string, see https://docs.djangoproject.com/en/1.10/ref/settings/#secret-key
-* ALLOWED_HOSTS - list of hosts that the serivce can be accessed from, see https://docs.djangoproject.com/en/1.10/ref/settings/#allowed-hosts
+* [DJANGO_SECRET_KEY](https://docs.djangoproject.com/en/1.10/ref/settings/#secret-key) - random string
+* [ALLOWED_HOSTS](https://docs.djangoproject.com/en/1.10/ref/settings/#allowed-hosts) - list of hosts that the serivce can be accessed from
 * DATABASE_URL (required for stateful deployments) - postgres://user:password@hostname/dbname
 * USE_X_FORWARDED_PROTO (optional, default: 0) - set to 1 if deploying behind a reverse proxy
 * DEBUG (optional, default: 0) - set to 1 to display debug information; don't ever enable this on public deployments
 * BOOTSTRAP_THEME_URL (optional) - Bootstrap theme to use, you can find many free ones at [bootswatch.com](https://bootswatch.com/)
 * BOOTSTRAP_THEME_INTEGRITY (optional) - Integrity checksum of the Bootstrap theme
+* HOME_URL (optional) - URL to redirect to when a logged in user accesses /; by default he'll get redirected to the app list view
 
 ### Migration
 Use `django-admin migrate` to set up / update the database.

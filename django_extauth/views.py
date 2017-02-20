@@ -1,10 +1,13 @@
 from django.conf import settings
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import Http404
 from django.shortcuts import redirect, resolve_url
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
+from django.views.generic import TemplateView
 
 from .models import *
 import uuid
@@ -122,3 +125,15 @@ def complete(request, provider):
 	if not url_is_safe:
 		return redirect(resolve_url(settings.LOGIN_REDIRECT_URL))
 	return redirect(return_path)
+
+@method_decorator(login_required, name='dispatch')
+class IdentitiesView(TemplateView):
+	template_name = "registration/identities.html"
+
+	def post(self, request):
+		try:
+			ei = request.user.externalidentity_set.get(pk=int(request.POST["disconnect"]))
+			ei.delete()
+		except:
+			pass
+		return redirect(reverse('extauth:identities'))

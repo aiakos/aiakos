@@ -20,6 +20,8 @@ DATABASES = {
 	'default': dj_database_url.config(conn_max_age=600, default="sqlite:///" + os.path.join(BASE_DIR, 'db.sqlite3'))
 }
 
+HOME_URL = os.getenv('HOME_URL', '/apps/')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +53,10 @@ MIDDLEWARE = [
 
 LOGIN_REDIRECT_URL = '/'
 
+ABSOLUTE_URL_OVERRIDES = {
+	'auth.user': lambda u: "/%s/" % u.username,
+}
+
 ROOT_URLCONF = 'aiakos.urls'
 
 TEMPLATES = [
@@ -64,6 +70,7 @@ TEMPLATES = [
 				'django.template.context_processors.request',
 				'django.contrib.auth.context_processors.auth',
 				'django.contrib.messages.context_processors.messages',
+				'django_extauth.context_processors.identity_providers',
 				'aiakos.bootstrap.theme',
 			],
 		},

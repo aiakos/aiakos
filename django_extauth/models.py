@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.shortcuts import reverse
 from openid_connect import OpenIDClient
 from openid_connect.legacy import PROTOCOLS
 from importlib import import_module
@@ -43,6 +44,10 @@ class IdentityProvider(models.Model):
 		self.client
 		super().save(*args, **kwargs)
 
+	@property
+	def login_url(self):
+		return reverse('extauth:begin', args=[self.slug])
+
 class ExternalIdentity(models.Model):
 	class Meta:
 		verbose_name_plural = 'External identities'
@@ -55,8 +60,22 @@ class ExternalIdentity(models.Model):
 
 	userinfo_yaml = models.TextField(default="", verbose_name="User information")
 
+	@property
+	def external_name(self):
+		try:
+			profile = self.profile
+		except ImportError:
+			pass
+		else:
+			if profile.nickname:
+				return profile.nickname
+			if profile.name:
+				return profile.name
+
+		return self.sub
+
 	def __str__(self):
-		return '{}@{}'.format(self.sub, self.provider)
+		return '{} @ {}'.format(self.external_name, self.provider)
 
 	@property
 	def userinfo(self):
@@ -77,3 +96,8 @@ class ExternalIdentity(models.Model):
 	@userinfo.setter
 	def userinfo(self, v):
 		self.userinfo_yaml = yaml.safe_dump(v, default_flow_style=False)
+
+	@property
+	def profile(self):
+		from django_profile_oidc.models import Profile
+		return Profile.from_dict(self.userinfo)
