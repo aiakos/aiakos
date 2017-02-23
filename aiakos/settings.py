@@ -43,6 +43,12 @@ RAVEN_CONFIG = {
     'dsn': os.getenv("RAVEN_URL"),
 }
 
+MEDIA_URL = os.getenv("MEDIA_URL", '/media/')
+
+_MEDIA_PROVIDER = os.getenv("MEDIA_PROVIDER")
+if _MEDIA_PROVIDER:
+	DEFAULT_FILE_STORAGE = "django_extstorage." + _MEDIA_PROVIDER + ".Storage"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -112,7 +118,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = 'https://storage.googleapis.com/djangocdn/1.10/'
-MEDIA_URL = '/media/'
 
 from django.http.request import HttpRequest
 
