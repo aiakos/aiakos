@@ -66,7 +66,7 @@ INSTALLED_APPS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-	'django.contrib.auth.backends.ModelBackend',
+	'aiakos.auth_backend.UsernameOrEmailBackend',
 )
 
 MIDDLEWARE = [
