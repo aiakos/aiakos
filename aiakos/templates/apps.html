@@ -9,10 +9,10 @@
 		<div class="row">
 			{% for consent in request.user.userconsent_set.all %}
 				<div class="col-sm-6 col-md-4">
-					<a href="{{consent.client.website_url}}" class="thumbnail">
-						<img src="{{consent.client.logo.url}}" style="height: 200px; width: 100%; display: block;">
+					<a href="{{consent.client.profile.website}}" class="thumbnail">
+						<img src="{{consent.client.profile.picture}}" style="height: 200px; width: 100%; display: block;">
 						<span class="caption" style="font-size: 2em; text-align: center; width: 100%; display: block; text-decoration: none !important;">
-							{{consent.client}}
+							{{consent.client.profile.name}}
 						</span>
 					</a>
 				</div>

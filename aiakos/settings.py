@@ -10,7 +10,7 @@ assert SECRET_KEY, "Non-empty DJANGO_SECRET_KEY environment variable is required
 DEBUG = os.getenv("DEBUG") == "1"
 
 HOSTNAME = os.getenv("AIAKOS_HOSTNAME", "")
-ALLOWED_HOSTS = [HOSTNAME]
+ALLOWED_HOSTS = [HOSTNAME.split(":")[0]]
 
 if os.getenv("USE_X_FORWARDED_PROTO", "") == "1":
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -59,14 +59,14 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'crispy_forms',
-	'oidc_provider',
 	'django_profile_oidc',
 	'django_extauth',
 	'raven.contrib.django.raven_compat',
+	'aiakos.openid_provider',
 ]
 
 AUTHENTICATION_BACKENDS = (
-	'aiakos.auth_backend.UsernameOrEmailBackend',
+	'aiakos.auth_backend.BetterAuthBackend',
 )
 
 MIDDLEWARE = [
@@ -77,6 +77,8 @@ MIDDLEWARE = [
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'aiakos.openid_provider.middleware.BearerTokenAuth',
+	'aiakos.openid_provider.middleware.ClientSecretBasicAuth',
 ]
 
 LOGIN_REDIRECT_URL = '/'
@@ -118,10 +120,3 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = 'https://storage.googleapis.com/djangocdn/1.10/'
-
-from django.http.request import HttpRequest
-
-def get_host(self):
-	return HOSTNAME
-
-HttpRequest.get_host = get_host
