@@ -59,3 +59,6 @@ You can find an example client in [example_client_django](example_client_django)
 Please set up a git hook that'll automatically enforce project's style:
 
 	git config core.hooksPath githooks/
+
+## License
+Aiakos is dual-licenced; you may choose the terms of the [MIT License](LICENSE) or the [BSD 2-Clause License](LICENSE.BSD).
