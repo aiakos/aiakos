@@ -58,11 +58,13 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'raven.contrib.django.raven_compat',
 	'crispy_forms',
+
 	'django_profile_oidc',
 	'django_extauth',
-	'raven.contrib.django.raven_compat',
 	'aiakos.openid_provider',
+	'aiakos',
 ]
 
 AUTHENTICATION_BACKENDS = (
