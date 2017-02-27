@@ -1,0 +1,10 @@
+#!/bin/sh
+
+find aiakos -type f -and -not -path './.git/*' -exec grep -Iq . {} \; -and -print | while read -r file; do {
+	echo "Converting spaces to tabs... "$file"";
+	mv "$file" ""$file"_old" && 
+	unexpand --first-only -t 4 ""$file"_old" > "$file" &&
+	rm ""$file"_old";
+}; done;
+
+isort -rc aiakos

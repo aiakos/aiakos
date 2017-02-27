@@ -57,3 +57,8 @@ OpenID Clients and external OpenID Providers can be configured in the Django adm
 
 ## Example client
 You can find an example client in [example_client_django](example_client_django) subdirectory.
+
+## Development
+Please set up a git hook that'll automatically enforce project's style:
+
+	git config core.hooksPath githooks/

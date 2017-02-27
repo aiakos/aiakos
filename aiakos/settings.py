@@ -1,4 +1,5 @@
 import os
+
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -40,7 +41,7 @@ LOGGING = {
 }
 
 RAVEN_CONFIG = {
-    'dsn': os.getenv("RAVEN_URL"),
+	'dsn': os.getenv("RAVEN_URL"),
 }
 
 MEDIA_URL = os.getenv("MEDIA_URL", '/media/')
