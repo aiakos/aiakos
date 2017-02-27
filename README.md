@@ -17,10 +17,7 @@ Currently, this repo contains multiple packages; they'll get split into multiple
 * [openid_connect](openid_connect) (Python 2.7/3.x) - Low-level Python OIDC Client library + wrappers for legacy protocols
 * [django_profile_oidc](django_profile_oidc) (Python 3.x) - User profile containing standard OIDC user info
 * [django_extauth](django_extauth) (Python 3.x) - Federated authentication support for Django, based on openid_connect library.
-
-We're also considering following external projects as the core components of Aiakos:
-
-* [django-oidc-provider](https://github.com/juanifioren/django-oidc-provider) (Python 2.7/3.x) - Django OIDC Provider library
+* [aiakos.openid_provider](aiakos/openid_provider) (Python 3.x) - OAuth 2 + OIDC Provider library
 
 ## Client libraries
 Any standards-compliant OpenID Connect library may be used.
