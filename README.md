@@ -32,8 +32,8 @@ The recommended way to deploy aiakos is to use the official docker container - [
 ### Deployment configuration
 Deployment configuration should be provided by environment variables:
 
+* AIAKOS_HOSTNAME - domain at which Aiakos will be available
 * [DJANGO_SECRET_KEY](https://docs.djangoproject.com/en/1.10/ref/settings/#secret-key) - random string
-* HOSTNAME - domain at which Aiakos will be available
 * DATABASE_URL (required for stateful deployments) - postgres://user:password@hostname/dbname
 * USE_X_FORWARDED_PROTO (optional, default: 0) - set to 1 if deploying behind a reverse proxy
 * DEBUG (optional, default: 0) - set to 1 to display debug information; don't ever enable this on public deployments
