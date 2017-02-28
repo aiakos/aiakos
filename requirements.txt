@@ -1,6 +1,7 @@
 appdirs==1.4.0
 contextlib2==0.5.4
 dj-database-url==0.4.2
+dj-email-url==0.0.10
 Django==1.10.5
 django-crispy-forms==1.6.1
 django-oidc-provider==0.4.4

@@ -1,6 +1,7 @@
 import os
 
 import dj_database_url
+import dj_email_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,6 +50,16 @@ MEDIA_URL = os.getenv("MEDIA_URL", '/media/')
 _MEDIA_PROVIDER = os.getenv("MEDIA_PROVIDER")
 if _MEDIA_PROVIDER:
 	DEFAULT_FILE_STORAGE = "django_extstorage." + _MEDIA_PROVIDER + ".Storage"
+
+_EMAIL_CONFIG = dj_email_url.config(default="console://")
+EMAIL_FILE_PATH = _EMAIL_CONFIG['EMAIL_FILE_PATH']
+EMAIL_HOST_USER = _EMAIL_CONFIG['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = _EMAIL_CONFIG['EMAIL_HOST_PASSWORD']
+EMAIL_HOST = _EMAIL_CONFIG['EMAIL_HOST']
+EMAIL_PORT = _EMAIL_CONFIG['EMAIL_PORT']
+EMAIL_BACKEND = _EMAIL_CONFIG['EMAIL_BACKEND']
+EMAIL_USE_TLS = _EMAIL_CONFIG['EMAIL_USE_TLS']
+EMAIL_USE_SSL = _EMAIL_CONFIG['EMAIL_USE_SSL']
 
 # Application definition
 
