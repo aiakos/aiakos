@@ -29,6 +29,8 @@
 			{% endif %}
 		</form>
 
+		<a href="{% url 'custom-password-reset' %}" class="btn btn-secondary btn-block">{% trans 'Forgot password?' %}</a>
+
 		{% else %}
 		<h2>{% trans "You're already logged in." %}</h2>
 		<a href="/" class="btn btn-primary btn-block">{% trans 'Continue' %}</a>
