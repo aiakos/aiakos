@@ -21,14 +21,15 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView, TemplateView
 
 from .openid_provider.views import ConfigurationView
-from .views import password_change
+from .views import password_change, password_reset
 
 urlpatterns = [
 	url(r'^$', login_required(RedirectView.as_view(url=settings.HOME_URL)), name='home'),
 	url(r'^apps/$', login_required(TemplateView.as_view(template_name='apps.html')), name='apps'),
 	url(r'^admin/', admin.site.urls),
 	url(r'^accounts/', include('django.contrib.auth.urls')),
-	url(r'^accounts/password-change/$', password_change, name="custom-password-change"),
+	url(r'^accounts/password-change/$', login_required(password_change), name="custom-password-change"),
+	url(r'^accounts/password-reset/$', password_reset, name="custom-password-reset"),
 	url(r'^accounts/', include('django_extauth.urls', namespace='extauth')),
 	url(r'^oauth/', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 	url(r'^\.well-known/openid-configuration$', ConfigurationView.as_view()),
