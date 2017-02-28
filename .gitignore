@@ -5,3 +5,4 @@ db.sqlite3
 example.sqlite3
 __pycache__
 *.pyc
+.idea

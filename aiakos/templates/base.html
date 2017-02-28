@@ -58,6 +58,8 @@
 							<li><a href="{{user.get_absolute_url}}">Your profile</a></li>
 							<li class="{% if request.resolver_match.url_name == 'identities' %}active{% endif %}"><a href="{% url 'extauth:identities' %}">External identites</a></li>
 							<li role="separator" class="divider"></li>
+							<li><a href="{% url 'custom-password-change' %}">Password change</a></li>
+							<li role="separator" class="divider"></li>
 							<li><a href="{% url 'logout' %}">Sign out</a></li>
 						</ul>
 					</li>
@@ -67,6 +69,14 @@
 		</div>
 	</nav>
 	<div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
 		{% block content %}
 		{% endblock %}
 	</div>
