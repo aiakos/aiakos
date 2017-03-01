@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -122,7 +123,10 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 			form = self._reset_form = self.ResetForm(data=request.POST)
 
 		if form and form.is_valid():
-			form.process(request)
+			msg = form.process(request)
+			if msg:
+				messages.success(request, msg)
+
 			if request.user:
 				return HttpResponseRedirect(self.get_success_url())
 			else:

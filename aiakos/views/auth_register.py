@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from django import forms
-from django.contrib import messages
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.translation import gettext_lazy as _
@@ -63,4 +62,4 @@ class AuthRegisterForm(forms.ModelForm):
 					'user': user,
 				}, request=request)
 
-		messages.success(request, _("Check your e-mail."))
+		return _("Check your e-mail.")

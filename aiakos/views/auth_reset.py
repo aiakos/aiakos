@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
@@ -38,4 +37,4 @@ class AuthResetForm(forms.Form):
 					'user': user,
 				}, site=site)
 
-		messages.success(request, _("Check your e-mail."))
+		return _("Check your e-mail.")
