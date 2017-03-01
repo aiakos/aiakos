@@ -112,6 +112,9 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 		return context
 
 	def post(self, request):
+		if "cancel" in request.POST:
+			return HttpResponseRedirect(self.get_success_url() + "&error=access_denied")
+
 		self._method = request.POST.get('method')
 
 		form = None

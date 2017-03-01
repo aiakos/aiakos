@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urlsplit, urlunsplit
 from uuid import uuid4
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
@@ -173,6 +174,9 @@ class AuthorizationView(View):
 			except login_required:
 				if prompt == 'none':
 					raise interaction_required() # Note: we don't want to tell RP if the user is logged in or not
+
+				if "error" in self.request.GET: # User cancelled log in.
+					raise access_denied()
 
 				params = {k: v for k, v in params.items() if k != 'prompt'}
 				_state = json.dumps(params)

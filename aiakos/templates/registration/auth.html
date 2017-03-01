@@ -39,6 +39,11 @@
 					<button type="submit" class="btn btn-primary btn-block btn-lg">{% trans "Log in" %}</button>
 				</form>
 
+				<form method="post">
+					{% csrf_token %}
+					<button type="submit" class="btn btn-danger btn-block btn-lg" name="cancel" value="x">{% trans "Cancel" %}</button>
+				</form>
+
 			</div>
 			<div role="tabpanel" class="tab-pane {% if method == 'register' %}active{% endif %}" id="register">
 
