@@ -1,0 +1,7 @@
+{% load i18n %}
+
+<h1>{% blocktrans %}Hello and thanks for joining {{site_name}}!{% endblocktrans %}</h1>
+
+<p>{% blocktrans %}You can confirm your account email through the link below:{% endblocktrans %}<p>
+
+<p><a href="{{confirm_email}}">{{confirm_email}}</a></p>

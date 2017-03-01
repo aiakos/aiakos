@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<h1>{% blocktrans %}Hello and thanks for creating a new account at {{site_name}}!{% endblocktrans %}</h1>
+
+<p>{% blocktrans %}Maybe you've forgotten about it, but you already have an account.{% endblocktrans %}</p>
+
+<p>{% blocktrans %}You can log in with:{% endblocktrans %}</p>
+<ul>
+{% if user.has_usable_password %}
+	<li>{% blocktrans %}password{% endblocktrans %}</li>
+{% endif %}
+{% for ei in user.externalidentity_set.all %}
+	<li>{{ei.provider}}</li>
+{% endfor %}
+</ul>

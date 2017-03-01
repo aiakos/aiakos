@@ -1,0 +1,3 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}Password reset at {{site_name}}{% endblocktrans %}

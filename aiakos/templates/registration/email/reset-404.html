@@ -1,0 +1,7 @@
+{% load i18n %}
+
+<p>{% blocktrans %}You're receiving this email because somebody requested a password reset for your user account at {{site_name}}.{% endblocktrans %}</p>
+
+<p>{% blocktrans %}You don't have any account with this e-mail address. You might want to register a new account at:{% endblocktrans %}</p>
+
+<p><a href="{{log_in}}">{{log_in}}</a></p>

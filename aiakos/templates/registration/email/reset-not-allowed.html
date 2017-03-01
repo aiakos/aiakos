@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<p>{% blocktrans %}You're receiving this email because you requested a password reset for your user account at {{site_name}}.{% endblocktrans %}</p>
+
+<p>{% blocktrans %}However, you can't reset password, as there's no password associated with your account.{% endblocktrans %}</p>
+
+<p>{% blocktrans %}You can log in with:{% endblocktrans %}</p>
+<ul>
+{% for ei in user.externalidentity_set.all %}
+	<li>{{ei.provider}}</li>
+{% endfor %}
+</ul>
+
+<p>{% blocktrans %}Thanks for using our site!{% endblocktrans %}</p>
+
+<p>{% blocktrans %}The {{site_name}} team{% endblocktrans %}</p>

@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<p>{% blocktrans %}You're receiving this email because you requested a password reset for your user account at {{site_name}}.{% endblocktrans %}</p>
+
+<p>{% blocktrans %}Please go to the following page and choose a new password:{% endblocktrans %}</p>
+
+<p><a href="{{reset_password}}">{{reset_password}}</a></p>
+
+<p>{% blocktrans %}Thanks for using our site!{% endblocktrans %}</p>
+
+<p>{% blocktrans %}The {{site_name}} team{% endblocktrans %}</p>

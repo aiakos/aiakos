@@ -1,0 +1,5 @@
+{% load i18n %}{% include "registration/email/welcome-back.html" %}
+
+<p>{% blocktrans %}In case you don't remeber your password, you can reset it through the link below:{% endblocktrans %}</p>
+
+<p><a href="{{reset_password}}">{{reset_password}}</a></p>

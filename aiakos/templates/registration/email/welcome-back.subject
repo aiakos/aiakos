@@ -1,0 +1,3 @@
+{% load i18n %}
+
+{% blocktrans %}Welcome back at {{site_name}}!{% endblocktrans %}

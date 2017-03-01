@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n static crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		{% for provider in identity_providers %}
+		<a href="{{provider.login_url}}?next={{next|urlencode}}" class="btn btn-default btn-block">
+		{% blocktrans trimmed %}
+			Sign in with {{provider}}
+		{% endblocktrans %}
+		</a>
+		{% endfor %}
+
+		{% if identity_providers %}
+		<hr/>
+		{% endif %}
+
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="{% if method == 'login' %}active{% endif %}">
+				<a href="#login" aria-controls="login" role="tab" data-toggle="tab">{% trans "Log in" %}</a>
+			</li>
+			<li role="presentation" class="{% if method == 'register' %}active{% endif %}">
+				<a href="#register" aria-controls="register" role="tab" data-toggle="tab">{% trans "Create account" %}</a>
+			</li>
+			<li role="presentation" class="{% if method == 'reset' %}active{% endif %}">
+				<a href="#reset" aria-controls="reset" role="tab" data-toggle="tab">{% trans "Reset password" %}</a>
+			</li>
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane {% if method == 'login' %}active{% endif %}" id="login">
+
+				<form method="post">
+					{% csrf_token %}
+					{{login_form|crispy}}
+
+					<button type="submit" class="btn btn-primary btn-block btn-lg">{% trans "Log in" %}</button>
+				</form>
+
+			</div>
+			<div role="tabpanel" class="tab-pane {% if method == 'register' %}active{% endif %}" id="register">
+
+				<form method="post">
+					{% csrf_token %}
+					{{register_form|crispy}}
+
+					<button type="submit" class="btn btn-primary btn-block btn-lg">{% trans "Create account" %}</button>
+				</form>
+
+			</div>
+			<div role="tabpanel" class="tab-pane {% if method == 'reset' %}active{% endif %}" id="reset">
+
+				<form method="post">
+					{% csrf_token %}
+					{{reset_form|crispy}}
+
+					<button type="submit" class="btn btn-primary btn-block btn-lg">{% trans "Reset password" %}</button>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
