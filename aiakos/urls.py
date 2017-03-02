@@ -34,6 +34,7 @@ urlpatterns = [
 	url(r'^accounts/', include('django_extauth.urls', namespace='extauth')),
 	url(r'^accounts/login/$', views.AuthView.as_view(), name='login'),
 	url(r'^accounts/logout/$', django_auth_views.logout, name='logout'),
+	url(r'^accounts/confirm-email/(?P<token>[^/]+)/$', views.EmailConfirmationView.as_view(), name='confirm_email'),
 	url(r'^accounts/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		django_auth_views.password_reset_confirm, name='password_reset_confirm'),
 	url(r'^accounts/reset/done/$', django_auth_views.password_reset_complete, name='password_reset_complete'),

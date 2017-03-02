@@ -3,6 +3,8 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from ..tokens import makeEmailConfirmationToken
+
 
 def password_reset_link(user, site):
 	return 'https://' + site.domain + reverse('password_reset_confirm', kwargs={
@@ -11,4 +13,5 @@ def password_reset_link(user, site):
 	})
 
 def email_confirmation_link(user, email, site):
-	return 'https://' + site.domain + 'TODO' # TODO
+	token = makeEmailConfirmationToken(user, email)
+	return 'https://' + site.domain + reverse('confirm_email', args=[token])
