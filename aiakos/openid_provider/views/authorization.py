@@ -73,8 +73,10 @@ class AuthorizationView(View):
 				scope = set(params.get('scope', '').split(' '))
 				scope &= set(['openid']) | set(SCOPES.keys())
 
+				untrusted_scope = scope - client.trusted_scopes
+
 				if '_cf' in self.request.POST:
-					consent = self._handle_consent_form(self.request, client, scope)
+					consent = self._handle_consent_form(self.request, client, untrusted_scope)
 				else:
 					consent = None
 
@@ -131,15 +133,15 @@ class AuthorizationView(View):
 							raise login_required()
 
 				if consent:
-					scope &= consent.scope
+					scope &= (consent.scope | client.trusted_scopes)
 				else:
 					if prompt == 'consent':
 						raise consent_required()
 
-					if scope - {'openid'}:
+					if untrusted_scope:
 						try:
 							uc = UserConsent.objects.get(user=self.request.user, client=client)
-							if not scope.issubset(uc.scope):
+							if not untrusted_scope.issubset(uc.scope):
 								raise consent_required()
 						except UserConsent.DoesNotExist:
 							raise consent_required()
@@ -192,7 +194,7 @@ class AuthorizationView(View):
 				params = {k: v for k, v in params.items() if k != 'prompt'}
 				_state = json.dumps(params)
 				_state_id = uuid4().hex
-				res = self._render_consent_form(self.request, client, scope, _state_id)
+				res = self._render_consent_form(self.request, client, untrusted_scope, _state_id)
 				res.set_cookie('auth_state_' + _state_id, _state)
 				return res
 
@@ -246,9 +248,6 @@ class AuthorizationView(View):
 	@staticmethod
 	@requires_csrf_token
 	def _render_consent_form(request, client, scope, state):
-		# Remove `openid` from scope list since we always allow it.
-		scope = {s for s in scope if s != 'openid'}
-
 		context = {
 			'client': client,
 			'scope': {name: desc for name, desc in SCOPES.items() if name in scope},
@@ -268,7 +267,6 @@ class AuthorizationView(View):
 		else:
 			uc = UserConsent(user=request.user, client=client)
 
-		uc.scope |= {'openid'}
 		uc.scope |= scope # TODO add a way to turn on and off single permissions
 
 		if client.confidential:

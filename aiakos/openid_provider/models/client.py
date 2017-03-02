@@ -11,6 +11,7 @@ class Client(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='openid_client', verbose_name=_("service account"))
 	confidential = models.BooleanField(default=True, verbose_name=_("confidential"))
 	_redirect_uris = models.TextField(default='', verbose_name=_("redirect URIs"), help_text=_("Enter each URI on a new line."))
+	_trusted_scopes = models.TextField(default='', verbose_name=_("trusted scopes"), blank=True)
 
 	@property
 	def redirect_uris(self):
@@ -19,6 +20,14 @@ class Client(models.Model):
 	@redirect_uris.setter
 	def redirect_uris(self, value):
 		self._redirect_uris = '\n'.join(value)
+
+	@property
+	def trusted_scopes(self):
+		return set(self._trusted_scopes.split())
+
+	@trusted_scopes.setter
+	def trusted_scopes(self, value):
+		self._trusted_scopes = ' '.join(value)
 
 	@property
 	def profile(self):
