@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.shortcuts import reverse
-from openid_connect import OpenIDClient
+from openid_connect import connect
 from openid_connect.legacy import PROTOCOLS
 from importlib import import_module
 import yaml
@@ -33,12 +33,7 @@ class IdentityProvider(models.Model):
 
 	@property
 	def client(self):
-		if not self.legacy_protocol:
-			cls = OpenIDClient
-		else:
-			cls = import_module('openid_connect.legacy.' + self.legacy_protocol).Client
-
-		return cls(self.url, self.client_id, self.client_secret, **self.legacy_settings)
+		return connect(self.url, self.client_id, self.client_secret, protocol=self.legacy_protocol, **self.legacy_settings)
 
 	def save(self, *args, **kwargs):
 		self.client
