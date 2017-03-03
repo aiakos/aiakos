@@ -23,7 +23,7 @@ Any standards-compliant OpenID Connect library may be used.
 
 We also provide our own client libraries:
 * [openid-connect](https://gitlab.com/aiakos/python-openid-connect) (Python 2.7/3.x) - Low-level Python OIDC Client library + wrappers for legacy protocols
-* [django_auth_oidc](django_auth_oidc) (Python 2.7/3.x) - Django authentication module for authentication using only a single OpenID Provider
+* [django-auth-oidc](https://gitlab.com/aiakos/django-auth-oidc) (Python 2.7/3.x) - Django authentication module for authentication using only a single OpenID Provider
 
 ## Deployment
 
