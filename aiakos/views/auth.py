@@ -1,8 +1,11 @@
+import json
+import logging
+
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
@@ -11,10 +14,14 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import TemplateView
 
+from aiakos.openid_provider.decorators import oauth_error_response
+from aiakos.openid_provider.errors import *
+
 from .auth_login import AuthLoginForm
 from .auth_register import AuthRegisterForm
 from .auth_reset import AuthResetForm
 
+logger = logging.getLogger(__name__)
 
 # Backport from Django 1.11
 class SuccessURLAllowedHostsMixin:
@@ -68,6 +75,14 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 			return resolve_url(settings.LOGIN_REDIRECT_URL)
 		return redirect_to
 
+	def get_error_url(self, error):
+		base = self.get_success_url()
+
+		if '?' in base:
+			return base + '&error=' + error
+		else:
+			return base + '?error=' + error
+
 	@property
 	def method(self):
 		try:
@@ -111,34 +126,88 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 		})
 		return context
 
+	def get_request_form(self, request):
+		method = request.POST.get('method')
+
+		if method == 'login':
+			return 'login', self.LoginForm(data=request.POST)
+		elif method == 'register':
+			return 'register', self.RegisterForm(data=request.POST)
+		elif method == 'reset':
+			return 'reset', self.ResetForm(data=request.POST)
+		elif method == 'cancel':
+			return 'cancel', None
+
+		return None, None
+
 	def post(self, request):
-		if "cancel" in request.POST:
-			return HttpResponseRedirect(self.get_success_url() + "&error=access_denied")
+		if request.META.get('HTTP_ACCEPT') == 'application/json':
+			return self.post_json(request)
+		else:
+			return self.post_ui(request)
 
-		self._method = request.POST.get('method')
+	def post_ui(self, request):
+		method, form = self.get_request_form(request)
 
-		form = None
-		if self.method == 'login':
-			form = self._login_form = self.LoginForm(data=request.POST)
-		elif self.method == 'register':
-			form = self._register_form = self.RegisterForm(data=request.POST)
-		elif self.method == 'reset':
-			form = self._reset_form = self.ResetForm(data=request.POST)
+		if method == 'cancel':
+			return HttpResponseRedirect(self.get_error_url('access_denied'))
 
-		if form and form.is_valid():
-			msg = form.process(request)
-			if msg:
-				messages.success(request, msg)
+		if form:
+			if form.is_valid():
+				msg = form.process(request)
 
-			if request.user:
-				return HttpResponseRedirect(self.get_success_url())
+				if msg:
+					messages.success(request, msg)
+
+				if request.user:
+					return HttpResponseRedirect(self.get_success_url())
 			else:
-				if self.method == 'login':
-					del self._login_form
-				if self.method == 'register':
-					del self._register_form
-				if self.method == 'reset':
-					del self._reset_form
-				self._method = 'login'
+				self._method = method
+				if method == 'login':
+					self._login_form = form
+				elif method == 'register':
+					self._register_form = form
+				elif method == 'reset':
+					self._reset_form = form
 
 		return self.get(request)
+
+	def post_api(self, request):
+		method, form = self.get_request_form(request)
+
+		resp = {}
+
+		if method == 'cancel':
+			resp['redirect'] = self.get_error_url('access_denied')
+			return resp
+
+		if not form:
+			raise invalid_request("Missing method parameter.")
+
+		if not form.is_valid():
+			errors = json.loads(form.errors.as_json())
+
+			e_class = invalid_request
+			if '__all__' in errors:
+				for e in errors['__all__']:
+					if e['code'] == 'invalid_login':
+						e_class = invalid_grant
+
+			raise e_class(errors)
+
+		msg = form.process(request)
+
+		if msg:
+			resp['message'] = msg
+
+		if not request.user.is_anonymous:
+			resp['redirect'] = self.get_success_url()
+
+		return resp
+
+	@method_decorator(oauth_error_response(logger))
+	def post_json(self, request):
+		response = JsonResponse(self.post_api(request))
+		response['Cache-Control'] = 'no-store'
+		response['Pragma'] = 'no-cache'
+		return response

@@ -41,7 +41,8 @@
 
 				<form method="post">
 					{% csrf_token %}
-					<button type="submit" class="btn btn-danger btn-block btn-lg" name="cancel" value="x">{% trans "Cancel" %}</button>
+					<input type="hidden" name="method" value="cancel">
+					<button type="submit" class="btn btn-danger btn-block btn-lg">{% trans "Cancel" %}</button>
 				</form>
 
 			</div>

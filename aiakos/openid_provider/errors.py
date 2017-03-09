@@ -1,6 +1,8 @@
 
 class OAuthError(Exception):
-	pass
+	def __init__(self, description=None):
+		if description:
+			self.description = description
 
 class invalid_request(OAuthError):
 	description = """The request is missing a required parameter, includes an invalid parameter value, repeats the same parameter, or is otherwise malformed."""
@@ -36,7 +38,7 @@ class invalid_client(OAuthError):
 
 class invalid_grant(OAuthError):
 	description = """The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client."""
-	status_code = 400
+	status_code = 401
 
 class unsupported_grant_type(OAuthError):
 	description = """The authorization grant type is not supported by the authorization server."""
