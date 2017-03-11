@@ -38,6 +38,10 @@ LOGGING = {
 			'handlers': ['console'],
 			'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
 		},
+		'aiakos': {
+			'handlers': ['console'],
+			'level': 'DEBUG' if DEBUG else 'INFO',
+		},
 	},
 }
 
