@@ -1,9 +1,9 @@
 from django.views.generic import DetailView
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 class ProfileView(DetailView):
-	model = User
+	model = get_user_model()
 	template_name = "registration/profile.html"
 
 	slug_url_kwarg = 'username'
