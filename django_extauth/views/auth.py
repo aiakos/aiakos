@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import resolve_url
+from django.shortcuts import resolve_url, reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
@@ -16,25 +16,43 @@ from django.views.generic.base import TemplateView
 
 from aiakos.openid_provider.decorators import oauth_error_response
 from aiakos.openid_provider.errors import *
+from six.moves.urllib.parse import urlencode
 
 from .auth_login import AuthLoginForm
+from .auth_oauth import OAuthLoginForm
 from .auth_register import AuthRegisterForm
 from .auth_reset import AuthResetForm
+from .ei import log_in
 
 logger = logging.getLogger(__name__)
 
-# Backport from Django 1.11
-class SuccessURLAllowedHostsMixin:
-	success_url_allowed_hosts = set()
+def get_success_url(request, state=None):
+	"""Ensure the user-originating redirection URL is safe."""
+	if state:
+		redirect_to = state[REDIRECT_FIELD_NAME]
+	else:
+		redirect_to = request.POST.get(
+			REDIRECT_FIELD_NAME,
+			request.GET.get(REDIRECT_FIELD_NAME, '')
+		)
 
-	def get_success_url_allowed_hosts(self):
-		allowed_hosts = {self.request.get_host()}
-		allowed_hosts.update(self.success_url_allowed_hosts)
-		return allowed_hosts
+	url_is_safe = is_safe_url(
+		url=redirect_to,
+		host=request.get_host()
+	)
+	if not url_is_safe:
+		return resolve_url(settings.LOGIN_REDIRECT_URL)
+	return redirect_to
 
+def get_error_url(request, error):
+	base = get_success_url(request)
 
-class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
-	redirect_field_name = REDIRECT_FIELD_NAME
+	if '?' in base:
+		return base + '&error=' + error
+	else:
+		return base + '?error=' + error
+
+class AuthView(TemplateView):
 	template_name = 'registration/auth.html'
 	redirect_authenticated_user = True
 
@@ -47,12 +65,15 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 	class ResetForm(AuthResetForm):
 		method = forms.CharField(widget = forms.HiddenInput(), required = True, initial = 'reset')
 
+	class OAuthForm(OAuthLoginForm):
+		method = forms.CharField(widget = forms.HiddenInput(), required = True, initial = 'oauth')
+
 	@method_decorator(sensitive_post_parameters())
 	@method_decorator(csrf_protect)
 	@method_decorator(never_cache)
 	def dispatch(self, request, *args, **kwargs):
 		if self.redirect_authenticated_user and self.request.user.is_authenticated:
-			redirect_to = self.get_success_url()
+			redirect_to = get_success_url(self.request)
 			if redirect_to == self.request.path:
 				raise ValueError(
 					"Redirection loop for authenticated user detected. Check that "
@@ -60,28 +81,6 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 				)
 			return HttpResponseRedirect(redirect_to)
 		return super().dispatch(request, *args, **kwargs)
-
-	def get_success_url(self):
-		"""Ensure the user-originating redirection URL is safe."""
-		redirect_to = self.request.POST.get(
-			self.redirect_field_name,
-			self.request.GET.get(self.redirect_field_name, '')
-		)
-		url_is_safe = is_safe_url(
-			url=redirect_to,
-			host=list(self.get_success_url_allowed_hosts())[0]
-		)
-		if not url_is_safe:
-			return resolve_url(settings.LOGIN_REDIRECT_URL)
-		return redirect_to
-
-	def get_error_url(self, error):
-		base = self.get_success_url()
-
-		if '?' in base:
-			return base + '&error=' + error
-		else:
-			return base + '?error=' + error
 
 	@property
 	def method(self):
@@ -115,14 +114,23 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 			self._reset_form = self.ResetForm()
 			return self._reset_form
 
+	@property
+	def oauth_form(self):
+		try:
+			return self._oauth_form
+		except:
+			self._oauth_form = self.OAuthForm()
+			return self._oauth_form
+
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context.update({
-			self.redirect_field_name: self.get_success_url(),
+			REDIRECT_FIELD_NAME: get_success_url(self.request),
 			'method': self.method,
 			'login_form': self.login_form,
 			'register_form': self.register_form,
 			'reset_form': self.reset_form,
+			'oauth_form': self.oauth_form,
 		})
 		return context
 
@@ -135,6 +143,8 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 			return 'register', self.RegisterForm(data=request.POST)
 		elif method == 'reset':
 			return 'reset', self.ResetForm(data=request.POST)
+		elif method == 'oauth':
+			return 'oauth', self.OAuthForm(data=request.POST)
 		elif method == 'cancel':
 			return 'cancel', None
 
@@ -150,17 +160,19 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 		method, form = self.get_request_form(request)
 
 		if method == 'cancel':
-			return HttpResponseRedirect(self.get_error_url('access_denied'))
+			return HttpResponseRedirect(get_error_url(self.request, 'access_denied'))
 
 		if form:
 			if form.is_valid():
-				msg = form.process(request)
+				resp = form.process(request)
 
-				if msg:
-					messages.success(request, msg)
+				if isinstance(resp, HttpResponseRedirect):
+					return resp
+				else:
+					messages.success(request, resp)
 
 				if request.user:
-					return HttpResponseRedirect(self.get_success_url())
+					return HttpResponseRedirect(get_success_url(self.request))
 			else:
 				self._method = method
 				if method == 'login':
@@ -169,6 +181,8 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 					self._register_form = form
 				elif method == 'reset':
 					self._reset_form = form
+				elif method == 'oauth':
+					self._oauth_form = form
 
 		return self.get(request)
 
@@ -178,7 +192,7 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 		resp = {}
 
 		if method == 'cancel':
-			resp['redirect'] = self.get_error_url('access_denied')
+			resp['redirect'] = get_error_url(self.requests, 'access_denied')
 			return resp
 
 		if not form:
@@ -195,13 +209,15 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 
 			raise e_class(errors)
 
-		msg = form.process(request)
+		form_resp = form.process(request)
 
-		if msg:
-			resp['message'] = msg
+		if isinstance(form_resp, HttpResponseRedirect):
+			resp['redirect'] = form_resp['Location']
+		else:
+			resp['message'] = form_resp
 
 		if not request.user.is_anonymous:
-			resp['redirect'] = self.get_success_url()
+			resp['redirect'] = get_success_url(self.request)
 
 		return resp
 
@@ -211,3 +227,10 @@ class AuthView(SuccessURLAllowedHostsMixin, TemplateView):
 		response['Cache-Control'] = 'no-store'
 		response['Pragma'] = 'no-cache'
 		return response
+
+	def oauth_callback(self, request, state):
+		if request.external_identity:
+			log_in(request)
+			return HttpResponseRedirect(get_success_url(request, state))
+
+		return HttpResponseRedirect(reverse('extauth:login') + '?' + urlencode({REDIRECT_FIELD_NAME: state[REDIRECT_FIELD_NAME]}))

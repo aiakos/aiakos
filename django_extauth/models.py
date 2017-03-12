@@ -1,59 +1,132 @@
-from django.db import models
-from django.conf import settings
-from django.shortcuts import reverse
-from openid_connect import connect
-from openid_connect.legacy import PROTOCOLS
+import random
 from importlib import import_module
+
+from django.conf import settings
+from django.contrib import auth
+from django.db import IntegrityError, models
+from django.shortcuts import reverse
+from django.utils.translation import ugettext_lazy as _
+
 import yaml
 
-PROTOCOL_CHOICES = tuple((protocol, protocol) for protocol in PROTOCOLS)
+from openid_connect import connect
+from openid_connect.legacy import PROTOCOLS
+
+PROTOCOL_CHOICES = (('openid_connect', "OpenID Connect"),) + tuple((protocol, protocol) for protocol in PROTOCOLS)
+
+class IdentityProviderManager(models.Manager):
+	def all(self):
+		return self.exclude(protocol="")
 
 class IdentityProvider(models.Model):
-	name = models.CharField(max_length=200)
-	slug = models.SlugField()
+	objects = IdentityProviderManager()
 
-	url = models.URLField(max_length=200, verbose_name='URL')
-	client_id = models.CharField(max_length=200)
-	client_secret = models.CharField(max_length=200)
+	domain = models.CharField(max_length=200, verbose_name=_("domain"), help_text=_("Example: accounts.google.com; may include a path"), unique=True)
 
-	legacy_protocol = models.CharField(max_length=50, choices=PROTOCOL_CHOICES, blank=True)
-	legacy_settings_yaml = models.TextField(blank=True, verbose_name="Legacy protocol settings", help_text="Legacy protocol specific settings, in YAML. Usually empty.")
+	name = models.CharField(max_length=200, blank=True)
+
+	client_id = models.CharField(max_length=200, blank=True)
+	client_secret = models.CharField(max_length=200, blank=True)
+
+	protocol = models.CharField(max_length=50, verbose_name=_("protocol"), choices=PROTOCOL_CHOICES, default='openid_connect', blank=True)
+	protocol_settings_yaml = models.TextField(blank=True, verbose_name=_("protocol-specific settings"), help_text=_("In YAML. Usually empty."))
 
 	inherit_admin_status = models.BooleanField(default=False, help_text="Grant superuser status to the provider's admins.")
 
 	def __str__(self):
-		return self.name
+		if self.name:
+			return self.name
+		else:
+			return self.domain
 
 	@property
-	def legacy_settings(self):
-		if self.legacy_settings_yaml:
-			kwargs = yaml.load(self.legacy_settings_yaml)
+	def protocol_settings(self):
+		if self.protocol_settings_yaml:
+			kwargs = yaml.load(self.protocol_settings_yaml)
 		else:
 			return {}
 
 	@property
 	def client(self):
-		return connect(self.url, self.client_id, self.client_secret, protocol=self.legacy_protocol, **self.legacy_settings)
+		if self.protocol:
+			return connect('https://' + self.domain + ('/' if not '/' in self.domain else ''), self.client_id, self.client_secret, protocol=self.protocol if self.protocol != 'openid_connect' else None, **self.protocol_settings)
+		else:
+			return None
 
 	def save(self, *args, **kwargs):
 		self.client
 		super().save(*args, **kwargs)
 
-	@property
-	def login_url(self):
-		return reverse('extauth:begin', args=[self.slug])
+	def redirect_uri(self, request):
+		return request.build_absolute_uri(reverse('extauth:oauth-done'))
+
+class ExternalIdentityManager(models.Manager):
+
+	def forced_get(self, email=None, sub=None, provider=None):
+		try:
+			if email:
+				return self.get(email=email)
+			else:
+				return self.get(sub=sub, provider=provider)
+		except ExternalIdentity.DoesNotExist:
+			ei = ExternalIdentity()
+			if email:
+				ei.email = email
+			else:
+				ei.sub = sub
+				ei.provider = provider
+			return ei
+
+	def get(self, email=None, **kwargs):
+		if email:
+			sub, domain = email.split('@', 1)
+			return super().get(sub=sub, provider__domain=domain, **kwargs)
+		return super().get(**kwargs)
+
+	def create(self, sub=None, provider=None, email=None, **kwargs):
+		if not (sub and provider) and email:
+			sub, domain = email.split('@', 1)
+			provider, created = IdentityProvider.objects.get_or_create(domain=domain, defaults={'protocol': ''})
+
+		return super().create(sub=sub, provider=provider, **kwargs)
+
+	def get_or_create(self, sub=None, provider=None, email=None, **kwargs):
+		if not (sub and provider) and email:
+			sub, domain = email.split('@', 1)
+			provider, created = IdentityProvider.objects.get_or_create(domain=domain, defaults={'protocol': ''})
+
+		return super().get_or_create(sub=sub, provider=provider, **kwargs)
 
 class ExternalIdentity(models.Model):
+	objects = ExternalIdentityManager()
+
 	class Meta:
 		verbose_name_plural = 'External identities'
-		unique_together = (('provider', 'sub',),)
+		unique_together = (('sub', 'provider'),)
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
-	provider = models.ForeignKey(IdentityProvider)
+	trusted = models.BooleanField(default=False)
 
 	sub = models.CharField(max_length=200)
+	provider = models.ForeignKey(IdentityProvider)
 
 	userinfo_yaml = models.TextField(default="", verbose_name="User information")
+
+	@property
+	def exists(self):
+		try:
+			return self.user
+		except ExternalIdentity.user.RelatedObjectDoesNotExist:
+			return None
+
+	@property
+	def email(self):
+		return self.sub + '@' + self.provider.domain
+
+	@email.setter
+	def email(self, email):
+		self.sub, domain = email.split('@', 1)
+		self.provider, created = IdentityProvider.objects.get_or_create(domain=domain, defaults={'protocol': ''})
 
 	@property
 	def external_name(self):
@@ -96,3 +169,29 @@ class ExternalIdentity(models.Model):
 	def profile(self):
 		from django_profile_oidc.models import Profile
 		return Profile.from_dict(self.userinfo)
+
+	@property
+	def additional_identities(self):
+		ais = []
+
+		email = self.userinfo.get('email')
+		if email and self.userinfo.get('email_verified'):
+			ais.append(ExternalIdentity.objects.forced_get(email=email))
+
+		return ais
+
+def create_user(username):
+	User = auth.get_user_model()
+
+	base_username = username[0:130] # Django has 150 char limit, we need shorter for retrying.
+
+	username = base_username
+	last_error = None
+	for i in range(1, 11): # Try 10 times
+		try:
+			return User.objects.create(username=username)
+		except IntegrityError as e:
+			username = base_username + str(random.randrange(0, 10**i))
+			last_error = e
+
+	raise last_error

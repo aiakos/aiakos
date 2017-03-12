@@ -4,27 +4,11 @@ from django.contrib.auth.backends import ModelBackend
 UserModel = get_user_model()
 
 class BetterAuthBackend(ModelBackend):
-	def authenticate(self, request=None, user_id=None, username=None, email=None, password=None, **kwargs):
+	def authenticate(self, request=None, user=None, user_id=None, username=None, password=None, **kwargs):
 		if username is None:
 			username = kwargs.get(UserModel.USERNAME_FIELD)
 
-		if email is None:
-			if username and "@" in username:
-				email = username
-				username = None
-
-		user = None
-
 		# We always want to do all queries (if everything is provided) so timing attacks won't be possible.
-		# Do email first, so that username will override it if user is found.
-		if email:
-			try:
-				user = UserModel._default_manager.get(email=email)
-			except UserModel.DoesNotExist:
-				pass
-			except UserModel.MultipleObjectsReturned: # email is not unique in standard Django
-				pass
-
 		if username:
 			try:
 				user = UserModel._default_manager.get_by_natural_key(username)

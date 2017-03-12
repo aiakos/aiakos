@@ -4,13 +4,17 @@
 {% block content %}
 <div class="row">
 	<div class="col-md-6 col-md-offset-3">
-		{% for provider in identity_providers %}
-		<a href="{{provider.login_url}}?next={{next|urlencode}}" class="btn btn-default btn-block">
-		{% blocktrans trimmed %}
-			Sign in with {{provider}}
-		{% endblocktrans %}
-		</a>
-		{% endfor %}
+		<form method="post">
+			{% csrf_token %}
+			<input type="hidden" name="method" value="oauth">
+			{% for provider in identity_providers %}
+				<button type="submit" name="provider" value="{{provider.domain}}" class="btn btn-default btn-block">
+				{% blocktrans trimmed %}
+					Sign in with {{provider}}
+				{% endblocktrans %}
+				</button>
+			{% endfor %}
+		</form>
 
 		{% if identity_providers %}
 		<hr/>

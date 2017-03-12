@@ -8,3 +8,4 @@ find aiakos -type f -and -not -path './.git/*' -exec grep -Iq . {} \; -and -prin
 }; done;
 
 isort -rc aiakos
+isort -rc django_extauth

@@ -59,7 +59,7 @@
 							<li class="{% if request.resolver_match.url_name == 'identities' %}active{% endif %}"><a href="{% url 'extauth:identities' %}">{% trans "External identites" %}</a></li>
 							<li class="{% if request.resolver_match.url_name == 'change-password' %}active{% endif %}"><a href="{% url 'change-password' %}">{% trans "Change password" %}</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="{% url 'logout' %}">{% trans "Sign out" %}</a></li>
+							<li><a href="{% url 'extauth:logout' %}">{% trans "Sign out" %}</a></li>
 						</ul>
 					</li>
 					{% endif %}

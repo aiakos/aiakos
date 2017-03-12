@@ -2,9 +2,9 @@ from django.contrib import admin
 
 from .models import *
 
+
 class IdentityProviderAdmin(admin.ModelAdmin):
-	prepopulated_fields = {'slug': ('name',)}
-	list_display = ('name', 'slug', 'url', 'client_id', 'legacy_protocol')
+	list_display = ('domain', 'name', 'client_id', 'protocol')
 
 admin.site.register(IdentityProvider, IdentityProviderAdmin)
 
