@@ -38,7 +38,7 @@ urlpatterns = [
 	url(r'^accounts/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		django_auth_views.password_reset_confirm, name='password_reset_confirm'),
 	url(r'^accounts/reset/done/$', django_auth_views.password_reset_complete, name='password_reset_complete'),
-	url(r'^accounts/password-change/$', login_required(views.password_change), name="custom-password-change"),
+	url(r'^accounts/change-password/$', login_required(views.password_change), name='change-password'),
 
 	url(r'^oauth/', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 
