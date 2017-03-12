@@ -20,7 +20,7 @@
 	</div>
 	<div class="col-sm-4">
 		<h3>{% trans 'External identites' %}</h3>
-		{% for ei in user.externalidentity_set.all %}
+		{% for ei in user.external_identities %}
 		<div class="media">
 			<div class="media-left">
 				{% if ei.profile.profile %}

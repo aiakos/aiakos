@@ -4,12 +4,10 @@
 
 <p>{% blocktrans %}Maybe you've forgotten about it, but you already have an account.{% endblocktrans %}</p>
 
-<p>{% blocktrans %}You can log in with:{% endblocktrans %}</p>
-<ul>
-{% if user.has_usable_password %}
-	<li>{% blocktrans %}password{% endblocktrans %}</li>
+{% include "registration/email/-log-in-with.html" %}
+
+{% if reset_password %}
+<p>{% blocktrans %}In case you don't remeber your password, you can reset it through the link below:{% endblocktrans %}</p>
+
+<p><a href="{{reset_password}}">{{reset_password}}</a></p>
 {% endif %}
-{% for ei in user.externalidentity_set.all %}
-	<li>{{ei.provider}}</li>
-{% endfor %}
-</ul>

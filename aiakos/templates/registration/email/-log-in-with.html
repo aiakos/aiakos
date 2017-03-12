@@ -1,0 +1,21 @@
+{% load i18n %}
+
+{% if user.login_with %}
+	<p>{% blocktrans %}You can log in with:{% endblocktrans %}</p>
+	<ul>
+	{% for ei in user.login_with %}
+		<li>{{ei}}</li>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+{% if not reset_password %}
+	{% if user.reset_password_with %}
+		<p>{% blocktrans %}You can reset your password with:{% endblocktrans %}</p>
+		<ul>
+		{% for ei in user.reset_password_with %}
+			<li>{{ei.email}}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+{% endif %}
