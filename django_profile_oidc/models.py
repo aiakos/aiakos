@@ -1,8 +1,17 @@
 from django.conf import settings
 from django.db import models
 
+
+def user_profile(user):
+	try:
+		return user._profile
+	except Profile.DoesNotExist:
+		user._profile = Profile()
+		return user._profile
+
+
 class Profile(models.Model):
-	user = models.OneToOneField(settings.AUTH_USER_MODEL)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='_profile')
 
 	name = models.CharField(max_length=200, blank=True)
 	given_name = models.CharField(max_length=200, blank=True)
@@ -75,7 +84,10 @@ class Profile(models.Model):
 
 		return p
 
-	def fill_missing(self, other):
+	def fill_missing(self, other, commit=True):
+		if isinstance(other, dict):
+			other = Profile.from_dict(other)
+
 		for field in Profile._meta.get_fields():
 			if field.name not in ['id', 'user', 'email', 'email_verified', 'phone_number', 'phone_number_verified']:
 				if not getattr(self, field.name):
@@ -94,3 +106,6 @@ class Profile(models.Model):
 		elif not self.phone_number_verified and other.phone_number_verified:
 			self.phone_number = other.phone_number
 			self.phone_number_verified = other.phone_number_verified
+
+		if commit:
+			self.save()
