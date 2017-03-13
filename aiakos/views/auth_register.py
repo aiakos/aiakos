@@ -38,7 +38,6 @@ class AuthRegisterForm(forms.ModelForm):
 			user.username = str(uuid4())
 			user.set_password(self.cleaned_data['password'])
 			user.save()
-			user.profile = Profile()
 			user.profile.email = userdata.email
 			user.profile.save()
 
