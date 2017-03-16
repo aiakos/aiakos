@@ -27,7 +27,7 @@ def authenticate_token(request, token):
 	sub = request.token['sub']
 	if '@' in sub:
 		request.external_identity = ExternalIdentity.objects.forced_get(email=sub)
-		if request.external_identity.exists:
+		if request.external_identity.exists and request.external_identity.trusted:
 			auth_login(request, request.external_identity.user)
 			messages.info(request, _("You've signed in."))
 	else:
