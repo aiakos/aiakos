@@ -38,7 +38,8 @@ class FinishRegistrationForm(forms.Form):
 	def __init__(self, request=None, user=None, *args, **kwargs):
 		self.request = request
 		self.user = user
-		super().__init__(*args, **kwargs, initial=dict(email=request.external_identity.email))
+		kwargs['initial'] = dict(email=request.external_identity.email)
+		super().__init__(*args, **kwargs)
 
 	def clean(self):
 		password = self.cleaned_data.get('password')

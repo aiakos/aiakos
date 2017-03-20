@@ -17,10 +17,10 @@ def send_mail(to, template_name, context, site=None, request=None):
 	if not site:
 		site = get_current_site(request)
 
-	context = {
-		"site_name": site.domain.capitalize(),
+	context = dict(
+		site_name = site.domain.capitalize(),
 		**context
-	}
+	)
 	subject = render_to_string(template_name + '.subject', context).strip().replace("\n", " ")
 	html = render_to_string(template_name + '.html', context).strip() + "\n"
 	try:
