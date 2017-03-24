@@ -17,6 +17,8 @@ ALLOWED_HOSTS = [HOSTNAME.split(":")[0]]
 if os.getenv("USE_X_FORWARDED_PROTO", "") == "1":
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+SECURE_SSL_REDIRECT = True if not DEBUG else False
+
 LANGUAGE_CODE = os.getenv("LANG", 'en-us')
 
 DATABASES = {
