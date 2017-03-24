@@ -3,6 +3,8 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 
+from ..models import create_user
+
 
 @staticmethod
 def fill_missing_profile_django(user, userinfo):
