@@ -1,5 +1,5 @@
 """
-WSGI config for project project.
+WSGI config for aiakos project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -13,7 +13,7 @@ from django.core.wsgi import get_wsgi_application
 
 from . import allowed_hosts_fix
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "aiakos.settings")
 
 application = get_wsgi_application()
 
