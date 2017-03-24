@@ -71,7 +71,7 @@ def log_in(request):
 		else:
 			messages.error(request, _("You have disabled logging in with this identity."))
 	else:
-		ais_of_other_users = [ai for ai in ei.additional_identities if ai.exists and ai.user != ei.user]
+		ais_of_other_users = [ai for ai in ei.additional_identities if ai.exists]
 
 		if ais_of_other_users:
 			# TODO Ask user if he wants to merge accounts (=> log in with another) or create a new one
