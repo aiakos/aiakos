@@ -1,0 +1,8 @@
+{
+  "name": "Aiakos",
+  "description": "Open source authentication gateway",
+  "image": "heroku/python",
+  "repository": "https://gitlab.com/aiakos/aiakos",
+  "keywords": ["python", "django" ],
+  "addons": [ "heroku-postgresql" ]
+}

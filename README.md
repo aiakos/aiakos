@@ -49,6 +49,18 @@ Use `django-admin createsuperuser` to create first user account.
 
 TODO Automatically create root:root user account as a migration.
 
+## Deploying to Heroku
+
+```sh
+$ heroku create
+$ git push heroku master
+
+$ heroku run python -m aiakos migrate
+$ heroku run python -m aiakos creatersakey
+$ heroku run python -m aiakos createsuperuser
+$ heroku open
+```
+
 ## Configuration
 OpenID Clients and external OpenID Providers can be configured in the Django admin panel - available at /admin.
 
