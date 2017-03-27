@@ -31,7 +31,10 @@ class AuthRegisterForm(forms.Form):
 			user = create_user(username)
 			user.set_password(password)
 			user.save()
+			user.profile.fill_missing(self.data)
 			user.profile.email = email
+			user.profile.email_verified = False
+			user.profile.phone_number_verified = False
 			user.profile.save()
 
 			send_mail(user.profile.email, 'registration/email/welcome', {
