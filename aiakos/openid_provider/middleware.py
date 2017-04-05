@@ -54,7 +54,7 @@ def BearerTokenAuth(get_response):
 				raise invalid_token()
 
 			if not hasattr(request, 'user') or request.user.is_anonymous:
-				request.user = request._cached_user = token.user
+				request.user = request._cached_user = request.token.user
 
 		response = get_response(request)
 		patch_vary_headers(response, ('Authorization',))
