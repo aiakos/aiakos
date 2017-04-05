@@ -24,5 +24,4 @@ class ProfileScope:
 			'birthdate': self.user.profile.birthdate,
 			'zoneinfo': self.user.profile.zoneinfo,
 			'locale': self.user.profile.locale,
-			'updated_at': self.user.profile.updated_at,
 		}
