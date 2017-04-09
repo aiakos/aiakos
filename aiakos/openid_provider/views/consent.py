@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from uuid import uuid4
+
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
@@ -92,9 +95,39 @@ class ConsentView(TemplateView):
 			response['access_token'] = access_token
 			response['expires_in'] = expires_in
 
+		saml = None
+		if 'saml' in self.auth_request.response_type and 'openid' in scope:
+			saml = makeSAMLAssertion(request=self.request, auth_request=self.auth_request, user=self.request.user, scope=scope, nonce=self.auth_request.nonce, at=access_token, c=code)
+			response['saml'] = saml
+
 		id_token = None
 		if 'id_token' in self.auth_request.response_type and 'openid' in scope:
 			id_token = makeIDToken(request=self.request, client=self.auth_request.client, user=self.request.user, scope=scope, nonce=self.auth_request.nonce, at=access_token, c=code)
 			response['id_token'] = id_token
 
 		return self.auth_request.respond(response)
+
+def makeSAMLAssertion(request, auth_request, user, scope, nonce, at, c):
+	return """
+		<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="{ID}" Version="2.0" IssueInstant="{iat}">
+			<Issuer>http://localhost.aiakosauth.io/saml2/authorize</Issuer>
+			<Subject>
+				<NameID SPNameQualifier="https://sp.testshib.org/shibboleth-sp" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7</NameID>
+				<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+					<SubjectConfirmationData NotBefore="{nbf}" NotOnOrAfter="{exp}" Recipient="{redirect_uri}" InResponseTo="{nonce}"/>
+				</SubjectConfirmation>
+			</Subject>
+			<Conditions NotBefore="{nbf}" NotOnOrAfter="{exp}">
+				<AudienceRestriction>
+					<Audience>https://sp.testshib.org/shibboleth-sp</Audience>
+				</AudienceRestriction>
+			</Conditions>
+		</Assertion>
+		""".format(
+			ID = uuid4().hex,
+			iat = datetime.utcnow().isoformat() + 'Z',
+			nbf = (datetime.utcnow() - timedelta(minutes=10)).isoformat() + 'Z',
+			exp = (datetime.utcnow() + timedelta(hours=12)).isoformat() + 'Z',
+			nonce = nonce,
+			redirect_uri = auth_request.redirect_uri,
+		)

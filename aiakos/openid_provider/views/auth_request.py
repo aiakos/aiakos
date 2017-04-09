@@ -1,9 +1,12 @@
 import json
 import logging
+from base64 import b64encode
+from datetime import datetime
 from urllib.parse import urlencode, urlsplit, urlunsplit
+from uuid import uuid4
 
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import Client
@@ -32,8 +35,16 @@ def _load_data(request):
 		logger.warning(e)
 
 
+RESPONSE_MODES = {
+	'fragment',
+	'query',
+	'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+}
+
 class AuthRequest:
 	def __init__(self, request, data = None):
+		self.http_request = request
+
 		self.id, self.data = _load_data(request) or (None, data)
 
 		if not self.data:
@@ -42,7 +53,7 @@ class AuthRequest:
 		self.response_type = set(self['response_type'].split(' ')) - {''}
 		self.response_mode = self.get('response_mode', 'fragment' if self.response_type != {'code'} else 'query')
 
-		if self.response_mode not in {'fragment', 'query'}:
+		if self.response_mode not in RESPONSE_MODES:
 			raise BadRequest(_("Invalid response_mode."))
 
 		if self.response_mode == 'query' and (self.response_type - {'code'}):
@@ -85,29 +96,45 @@ class AuthRequest:
 		return self[key] != ''
 
 	def respond(self, response):
-		if self.state:
-			response['state'] = self.state
+		if self.response_mode in {'query', 'fragment'}:
+			if self.state:
+				response['state'] = self.state
 
-		redirect_uri = urlsplit(self.redirect_uri)
+			redirect_uri = urlsplit(self.redirect_uri)
 
-		if self.response_mode == 'query':
-			new_query = redirect_uri.query
-			if new_query:
-				new_query += '&'
-			new_query += urlencode(response)
-			redirect_uri = redirect_uri._replace(query=new_query)
+			if self.response_mode == 'query':
+				new_query = redirect_uri.query
+				if new_query:
+					new_query += '&'
+				new_query += urlencode(response)
+				redirect_uri = redirect_uri._replace(query=new_query)
 
-		elif self.response_mode == 'fragment':
-			new_fragment = redirect_uri.fragment
-			if new_fragment:
-				new_fragment += '&'
-			new_fragment += urlencode(response)
-			redirect_uri = redirect_uri._replace(fragment=new_fragment)
+			elif self.response_mode == 'fragment':
+				new_fragment = redirect_uri.fragment
+				if new_fragment:
+					new_fragment += '&'
+				new_fragment += urlencode(response)
+				redirect_uri = redirect_uri._replace(fragment=new_fragment)
 
-		return redirect(urlunsplit(redirect_uri))
+			return redirect(urlunsplit(redirect_uri))
+
+		if self.response_mode == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
+			print(response['saml'])
+			return render(self.http_request, 'openid_provider/saml_submit.html', {
+				'redirect_uri': self.redirect_uri,
+				'RelayState': self.state,
+				'SAMLResponse': b64encode(SAMLResponse(response['saml']).encode('utf-8')) if 'saml' in response else '',
+			})
 
 	def deny(self, e):
 		return self.respond({
 			'error': type(e).__name__,
 			'error_description': e.description,
 		})
+
+SAML_RESPONSE = '<Response xmlns="urn:oasis:names:tc:SAML:2.0:protocol" Version="2.0" ID="{}" IssueInstant="{}">{}</Response>'
+
+SAML_STATUS_OK = '<Status><StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></Status>'
+
+def SAMLResponse(data):
+	return SAML_RESPONSE.format(uuid4().hex, datetime.utcnow().isoformat(), SAML_STATUS_OK + data)

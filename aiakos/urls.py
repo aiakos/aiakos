@@ -35,6 +35,8 @@ urlpatterns = [
 
 	url(r'^oauth/', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 
+	url(r'^saml2/', include('aiakos.openid_provider.saml.urls', namespace='saml2')),
+
 	url(r'^\.well-known/openid-configuration$', ConfigurationView.as_view()),
 	url(r'^', include('django_profile_oidc.urls')),
 
