@@ -6,6 +6,10 @@ from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 
+from defusedxml.lxml import fromstring as parse_xml
+from lxml import etree
+from signxml import XMLSigner
+
 from ..errors import consent_required
 from ..models import UserConsent
 from ..scopes import SCOPES
@@ -108,20 +112,32 @@ class ConsentView(TemplateView):
 		return self.auth_request.respond(response)
 
 def makeSAMLAssertion(request, auth_request, user, scope, nonce, at, c):
-	return """
-		<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="{ID}" Version="2.0" IssueInstant="{iat}">
-			<Issuer>http://localhost.aiakosauth.io/saml2/authorize</Issuer>
+	return etree.tostring(signer.sign(parse_xml("""
+		<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ID="{ID}" Version="2.0" IssueInstant="{iat}">
+
+			<Issuer>http://localhost.aiakosauth.io:8000/saml2/authorize/</Issuer>
+
+			<ds:Signature Id="placeholder"></ds:Signature>
+
 			<Subject>
 				<NameID SPNameQualifier="https://sp.testshib.org/shibboleth-sp" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7</NameID>
 				<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
 					<SubjectConfirmationData NotBefore="{nbf}" NotOnOrAfter="{exp}" Recipient="{redirect_uri}" InResponseTo="{nonce}"/>
 				</SubjectConfirmation>
 			</Subject>
+
 			<Conditions NotBefore="{nbf}" NotOnOrAfter="{exp}">
 				<AudienceRestriction>
 					<Audience>https://sp.testshib.org/shibboleth-sp</Audience>
 				</AudienceRestriction>
 			</Conditions>
+
+			<AuthnStatement AuthnInstant="{auth_time}">
+				<AuthnContext>
+					<AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</AuthnContextClassRef>
+				</AuthnContext>
+			</AuthnStatement>
+
 		</Assertion>
 		""".format(
 			ID = uuid4().hex,
@@ -130,4 +146,44 @@ def makeSAMLAssertion(request, auth_request, user, scope, nonce, at, c):
 			exp = (datetime.utcnow() + timedelta(hours=12)).isoformat() + 'Z',
 			nonce = nonce,
 			redirect_uri = auth_request.redirect_uri,
-		)
+
+			auth_time = (datetime.utcnow() - timedelta(hours=24)).isoformat() + 'Z', # TODO
+		)), key=KEY, cert=CERT)).decode('utf-8')
+
+signer = XMLSigner(c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#")
+
+# Don't worry, it's not used anywhere else.
+# TODO use key from the database
+KEY = b"""-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCbBiBek4L/xUOFEvXhPTYf8ddEdx8/ZDTEmLj2/csTjCmwdQ1c
+fnT45gRwFapCcO2fz7nvyKJFKOt+HHCtHt0UOuI7tvCwN5lmPCIBHMiaLCy1s/oO
+RQY2L6Yez1I1BRjyXPeme6RFiJ/QYr8pzmt3Ut8VHSGrH08nucG1JY1uPQIDAQAB
+AoGACB8DypiVNAN4REwoO966S2Wetpw785TzC7qJdAz7GsDMvU0AgHAyfgiEwn9s
+DjN+y1C1R6m90HwyjAZ+457ai3wS9UsTQPfgr2iGTH64tR9BgqCconBGHzb34+/a
+7JimGyCOqiyz6xFqOZ7xTaWtxm9T0terliX4mASFahfRZEkCQQC3/dG9wfCjQkO9
+dOcyAA1LMOs6+z81FdVLF8IiKJhTxcE+9wPgfhGIxn7TwihlL3alppRfOmpoFSR0
+mHVUueiJAkEA17IJXz1lqbqjkdex6otrMmYJNbyluQw178n3EDt+HZjHEt7bzqXk
+3HbyNv0cVJEqezSmb1E0VWqqzxe3z4XDFQJAR7GWxetJWkRa4vsnj3snsvHn5z65
+nXTZfP5P/kF1QcdgCqn0D8jwCizWhKs2VF9PSzMCw6yeg9ohL3Gs3ovmiQJBAJts
+dsRiAXekPWlB+7n+bGgMjmZiYShOXC9FYPoZZG7/P7OhUtI9SAR00WQ+TsPBNtNA
+xQ1BfmxuSFahyJmI0WECQC8v7qzjU4Iqn0nHYKYD/Dm1PGLtB+kNlGKLngoIJjZJ
+5C3/EFYxcF9cXaoe6k5UUryVUVwCVhpzeWE194UQ5aQ=
+-----END RSA PRIVATE KEY-----"""
+
+CERT = b"""
+-----BEGIN CERTIFICATE-----
+MIICWDCCAcGgAwIBAgIJALYjtCnWK2D0MA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNV
+BAYTAlBMMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBX
+aWRnaXRzIFB0eSBMdGQwHhcNMTcwNDEwMjAyMDA5WhcNMTgwNDEwMjAyMDA5WjBF
+MQswCQYDVQQGEwJQTDETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50
+ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB
+gQCbBiBek4L/xUOFEvXhPTYf8ddEdx8/ZDTEmLj2/csTjCmwdQ1cfnT45gRwFapC
+cO2fz7nvyKJFKOt+HHCtHt0UOuI7tvCwN5lmPCIBHMiaLCy1s/oORQY2L6Yez1I1
+BRjyXPeme6RFiJ/QYr8pzmt3Ut8VHSGrH08nucG1JY1uPQIDAQABo1AwTjAdBgNV
+HQ4EFgQUnhBKpddmI0yT+rjpmRzrRo6783wwHwYDVR0jBBgwFoAUnhBKpddmI0yT
++rjpmRzrRo6783wwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOBgQAL7R0m
+M3CCGvCPu4HAYIkvA/z4TD5ik/B9VFeQluRFxjBmuaeAibGr9a5fN90NbDkj0CUD
+OLmYrkQFwgA0PLe44XcPJvtxAjD1WErgrKUNw2aj/XeGc+DouVlTTOcplHTrs+Ej
+2xFmvkK4XeMdX5oDvRKQcoL/OdGlOReDc1MFXw==
+-----END CERTIFICATE-----
+"""
