@@ -30,22 +30,14 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 class SAMLAuthorizationView(AuthorizationView):
 
-	def get(self, request):
-		params = request.GET
-		state = params.get('RelayState', '')
-
-		try:
-			saml_request_xml = inflate(b64decode(params['SAMLRequest'])).decode('utf-8')
-			saml_request = parse_xml(saml_request_xml, forbid_dtd=True)
-
-			assert(saml_request.tag == '{urn:oasis:names:tc:SAML:2.0:protocol}AuthnRequest')
-		except:
+	def _handle_saml(self, request, saml_request, state):
+		if saml_request.tag != '{urn:oasis:names:tc:SAML:2.0:protocol}AuthnRequest':
 			raise BadRequest("Invalid SAMLRequest")
 
 		issuers = list(saml_request.iter('{urn:oasis:names:tc:SAML:2.0:assertion}Issuer'))
 		if len(issuers) != 1:
 			raise BadRequest("Invalid SAMLRequest")
-		issuer = issuers[0]
+		issuer = issuers[0].text
 
 		id = saml_request.attrib.get('ID', '')
 		consumer_url = saml_request.attrib.get('AssertionConsumerServiceURL', '')
@@ -53,8 +45,11 @@ class SAMLAuthorizationView(AuthorizationView):
 
 		consumer_index = saml_request.attrib.get('AssertionConsumerServiceIndex', '')
 
+		if not "://" in issuer:
+			issuer = "https://" + issuer
+
 		auth_request = AuthRequest(request, dict(
-			client_id = 34, # TODO issuer.text,
+			client_id = issuer,
 			redirect_uri = consumer_url,
 			response_mode = consumer_proto,
 			state = state,
@@ -63,5 +58,30 @@ class SAMLAuthorizationView(AuthorizationView):
 			nonce = id,
 		))
 
-		print(saml_request_xml)
 		return self._handle(request, auth_request)
+
+	def get(self, request):
+		state = request.GET.get('RelayState', '')
+
+		try:
+			saml_request_xml = inflate(b64decode(request.GET['SAMLRequest'])).decode('utf-8')
+			saml_request = parse_xml(saml_request_xml, forbid_dtd=True)
+		except:
+			raise BadRequest("Invalid SAMLRequest")
+
+		print(state, saml_request_xml)
+
+		return self._handle_saml(request, saml_request, state)
+
+	def post(self, request):
+		state = request.POST.get('RelayState', '')
+
+		try:
+			saml_request_xml = b64decode(request.POST['SAMLRequest']).decode('utf-8')
+			saml_request = parse_xml(saml_request_xml, forbid_dtd=True)
+		except:
+			raise BadRequest("Invalid SAMLRequest")
+
+		print(state, saml_request_xml)
+
+		return self._handle_saml(request, saml_request, state)

@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from django.contrib.auth.decorators import login_required
+from django.template import Context, Template
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
@@ -112,43 +113,22 @@ class ConsentView(TemplateView):
 		return self.auth_request.respond(response)
 
 def makeSAMLAssertion(request, auth_request, user, scope, nonce, at, c):
-	return etree.tostring(signer.sign(parse_xml("""
-		<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ID="{ID}" Version="2.0" IssueInstant="{iat}">
-
-			<Issuer>http://localhost.aiakosauth.io:8000/saml2/authorize/</Issuer>
-
-			<ds:Signature Id="placeholder"></ds:Signature>
-
-			<Subject>
-				<NameID SPNameQualifier="https://sp.testshib.org/shibboleth-sp" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7</NameID>
-				<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-					<SubjectConfirmationData NotBefore="{nbf}" NotOnOrAfter="{exp}" Recipient="{redirect_uri}" InResponseTo="{nonce}"/>
-				</SubjectConfirmation>
-			</Subject>
-
-			<Conditions NotBefore="{nbf}" NotOnOrAfter="{exp}">
-				<AudienceRestriction>
-					<Audience>https://sp.testshib.org/shibboleth-sp</Audience>
-				</AudienceRestriction>
-			</Conditions>
-
-			<AuthnStatement AuthnInstant="{auth_time}">
-				<AuthnContext>
-					<AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</AuthnContextClassRef>
-				</AuthnContext>
-			</AuthnStatement>
-
-		</Assertion>
-		""".format(
+	return etree.tostring(signer.sign(parse_xml(ASSERTION.render(Context(dict(
 			ID = uuid4().hex,
 			iat = datetime.utcnow().isoformat() + 'Z',
 			nbf = (datetime.utcnow() - timedelta(minutes=10)).isoformat() + 'Z',
 			exp = (datetime.utcnow() + timedelta(hours=12)).isoformat() + 'Z',
 			nonce = nonce,
+			iss = "http://localhost.aiakosauth.io:8000/",
+			sector_id = "localhost.aiakosauth.io", # TODO pairwise
+			aud = auth_request.client.user.username,
 			redirect_uri = auth_request.redirect_uri,
 
+			#custom_sub = True,
+			sub = user.id,
+
 			auth_time = (datetime.utcnow() - timedelta(hours=24)).isoformat() + 'Z', # TODO
-		)), key=KEY, cert=CERT)).decode('utf-8')
+		)))), key=KEY, cert=CERT)).decode('utf-8')
 
 signer = XMLSigner(c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#")
 
@@ -187,3 +167,36 @@ OLmYrkQFwgA0PLe44XcPJvtxAjD1WErgrKUNw2aj/XeGc+DouVlTTOcplHTrs+Ej
 2xFmvkK4XeMdX5oDvRKQcoL/OdGlOReDc1MFXw==
 -----END CERTIFICATE-----
 """
+
+
+
+ASSERTION = Template("""
+	<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="_{{ID}}" Version="2.0" IssueInstant="{{iat}}">
+
+		<Issuer>{{iss}}</Issuer>
+
+		<Signature xmlns="http://www.w3.org/2000/09/xmldsig#" Id="placeholder"></Signature>
+
+		<Subject>
+			<NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" NameQualifier="{{iss}}" SPNameQualifier="{{sector_id}}">{{sub}}</NameID>
+			<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+				<SubjectConfirmationData NotOnOrAfter="{{exp}}" Recipient="{{redirect_uri}}" InResponseTo="{{nonce}}"/>
+			</SubjectConfirmation>
+		</Subject>
+
+		<Conditions NotBefore="{{nbf}}" NotOnOrAfter="{{exp}}">
+			<AudienceRestriction>
+				<Audience>{{aud}}</Audience>
+			</AudienceRestriction>
+		</Conditions>
+
+		<AuthnStatement AuthnInstant="{{auth_time}}">
+			<AuthnContext>
+				<AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</AuthnContextClassRef>
+			</AuthnContext>
+		</AuthnStatement>
+
+	</Assertion>
+""")
+
+# SubjectConfirmationData.InResponseTo does not work with Salesforce!

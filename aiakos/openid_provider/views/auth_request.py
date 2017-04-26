@@ -71,8 +71,11 @@ class AuthRequest:
 			raise BadRequest(_("Missing client_id."))
 		try:
 			service_account = User.objects.get(id=self['client_id'])
-		except User.DoesNotExist:
-			raise NotFound(_("Invalid client_id."))
+		except (User.DoesNotExist, ValueError):
+			try:
+				service_account = User.objects.get(username=self['client_id'])
+			except (User.DoesNotExist, ValueError):
+				raise NotFound(_("Invalid client_id."))
 
 		try:
 			self.client = service_account.openid_client
@@ -119,11 +122,12 @@ class AuthRequest:
 			return redirect(urlunsplit(redirect_uri))
 
 		if self.response_mode == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-			print(response['saml'])
+			saml_response = SAMLResponse(response['saml'])
+			print(saml_response)
 			return render(self.http_request, 'openid_provider/saml_submit.html', {
 				'redirect_uri': self.redirect_uri,
 				'RelayState': self.state,
-				'SAMLResponse': b64encode(SAMLResponse(response['saml']).encode('utf-8')) if 'saml' in response else '',
+				'SAMLResponse': b64encode(saml_response.encode('utf-8')) if 'saml' in response else '',
 			})
 
 	def deny(self, e):
@@ -132,9 +136,9 @@ class AuthRequest:
 			'error_description': e.description,
 		})
 
-SAML_RESPONSE = '<Response xmlns="urn:oasis:names:tc:SAML:2.0:protocol" Version="2.0" ID="{}" IssueInstant="{}">{}</Response>'
+SAML_RESPONSE = '<Response xmlns="urn:oasis:names:tc:SAML:2.0:protocol" Version="2.0" ID="_{}" IssueInstant="{}">{}</Response>'
 
 SAML_STATUS_OK = '<Status><StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></Status>'
 
 def SAMLResponse(data):
-	return SAML_RESPONSE.format(uuid4().hex, datetime.utcnow().isoformat(), SAML_STATUS_OK + data)
+	return SAML_RESPONSE.format(uuid4().hex, datetime.utcnow().isoformat() + "Z", SAML_STATUS_OK + data)
