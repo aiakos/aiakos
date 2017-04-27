@@ -83,12 +83,13 @@ INSTALLED_APPS = [
 
 	'django_profile_oidc',
 	'django_extauth',
+	'django_passwords',
 	'aiakos.openid_provider',
 	'aiakos',
 ]
 
 AUTHENTICATION_BACKENDS = (
-	'aiakos.auth_backend.BetterAuthBackend',
+	'django_passwords.django_backend.DjangoBackend',
 )
 
 MIDDLEWARE = [
