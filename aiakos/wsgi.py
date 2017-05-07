@@ -11,8 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-from . import allowed_hosts_fix
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "aiakos.settings")
 
 application = get_wsgi_application()

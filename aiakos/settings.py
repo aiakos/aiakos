@@ -93,6 +93,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 MIDDLEWARE = [
+	'aiakos.health.HealthcheckMiddleware',
 	'django.middleware.security.SecurityMiddleware',
 	'whitenoise.middleware.WhiteNoiseMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
