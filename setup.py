@@ -29,6 +29,7 @@ setup(
 		"pyjwkest",
 		"PyYAML",
 		"raven",
+		"whitenoise",
 	],
 
 	extras_require={

@@ -94,6 +94,7 @@ AUTHENTICATION_BACKENDS = (
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
+	'whitenoise.middleware.WhiteNoiseMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -142,4 +143,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = 'https://storage.googleapis.com/djangocdn/1.10/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
