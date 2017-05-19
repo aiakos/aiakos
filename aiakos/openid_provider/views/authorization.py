@@ -58,7 +58,7 @@ class AuthorizationView(View):
 		except Client.DoesNotExist:
 			return HttpResponseNotFound(_("Invalid client ID"))
 
-		if redirect_uri not in client.redirect_uris:
+		if not client.is_valid_redirect_uri(redirect_uri):
 			return HttpResponseNotFound(_("Invalid redirect URI"))
 
 		state = params.get('state', '')
