@@ -1,12 +1,8 @@
-{% extends "base.html" %}
+{% extends "narrow.html" %}
 {% load i18n %}
 
 {% block content %}
-<div class="row">
-	<div class="col-md-6 col-md-offset-3">
-		<h2>{% trans "You are now logged out." %}</h2>
+<h2>{% trans "You are now logged out." %}</h2>
 
-		<a href="{% url 'extauth:login' %}" class="btn btn-secondary btn-block">{% trans 'Log in again' %}</a>
-	</div>
-</div>
+<a href="{% url 'extauth:login' %}" class="btn btn-default btn-block">{% trans 'Log in again' %}</a>
 {% endblock %}
