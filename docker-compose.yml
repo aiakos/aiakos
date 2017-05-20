@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+  mysql:
+    restart: always
+    image: lew21/mariadb:10.1
+    environment:
+      MYSQL_DATABASE: accounts
+
+  migrate:
+    restart: on-failure
+    depends_on:
+    - mysql
+    build:
+      context: .
+    environment:
+    - DJANGO_SECRET_KEY=x
+    - AIAKOS_HOSTNAME=x
+    - DATABASE_URL=mysql://root@mysql/accounts
+    command: django-admin migrate
+
+  loaddata:
+    restart: on-failure
+    depends_on:
+    - mysql
+    build:
+      context: .
+    environment:
+    - DJANGO_SECRET_KEY=x
+    - AIAKOS_HOSTNAME=x
+    - DATABASE_URL=mysql://root@mysql/accounts
+    command: django-admin loaddata devdata.yaml
+
+  accounts:
+    restart: on-failure
+    depends_on:
+    - mysql
+    build:
+      context: .
+    environment:
+    - DATABASE_URL=mysql://root@mysql/accounts
+    - DJANGO_SECRET_KEY=x
+    - DEBUG=1
+    - AIAKOS_HOSTNAME=localhost.aiakosauth.io:2121
+    ports:
+    - "2121:80"
