@@ -29,6 +29,7 @@ setup(
 		"raven",
 		"whitenoise",
 		"Werkzeug",
+		"django_inlinecss",
 	],
 
 	extras_require={

@@ -86,6 +86,7 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 	'raven.contrib.django.raven_compat',
 	'crispy_forms',
+	'django_inlinecss',
 
 	'django_profile_oidc',
 	'django_extauth',
