@@ -16,7 +16,7 @@ setup(
 	keywords="django,auth,oauth,openid,oidc,social,ldap",
 
 	install_requires=[
-		"Django==1.10",
+		"Django>=1.11,<1.11.99",
 		"openid-connect",
 		"gevent",
 		"gunicorn",
