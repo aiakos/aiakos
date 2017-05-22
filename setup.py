@@ -18,18 +18,17 @@ setup(
 	install_requires=[
 		"Django==1.10",
 		"openid-connect",
+		"gevent",
 		"gunicorn",
 		"dj-database-url",
 		"dj-email-url",
 		"django-crispy-forms",
-		"django-oidc-provider",
 		"google-auth",
-		"pycrypto",
-		"pycryptodomex",
 		"pyjwkest",
 		"PyYAML",
 		"raven",
 		"whitenoise",
+		"Werkzeug",
 	],
 
 	extras_require={
