@@ -2,6 +2,8 @@ import os
 from hashlib import sha256
 from time import time
 
+from django.conf import settings
+
 from Cryptodome.PublicKey.RSA import importKey
 from jwkest.jwk import RSAKey as jwk_RSAKey
 from jwkest.jws import JWS
@@ -35,4 +37,4 @@ class Issuer:
 
 		return JWS(payload, alg='RS256').sign_compact(self.keys)
 
-issuer = Issuer('https://' + os.getenv('AIAKOS_HOSTNAME') + '/')
+issuer = Issuer(settings.BASE_URL)

@@ -41,6 +41,6 @@ services:
     - DATABASE_URL=mysql://root@mysql/accounts
     - DJANGO_SECRET_KEY=x
     - DEBUG=1
-    - AIAKOS_HOSTNAME=localhost.aiakosauth.io:2121
+    - BASE_URL=http://localhost.aiakosauth.io:2121/
     ports:
     - "2121:80"

@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlsplit
 
 import dj_database_url
 import dj_email_url
@@ -9,15 +10,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 assert SECRET_KEY, "Non-empty DJANGO_SECRET_KEY environment variable is required!"
 
-DEBUG = os.getenv("DEBUG") == "1"
-
-HOSTNAME = os.getenv("AIAKOS_HOSTNAME", "")
-ALLOWED_HOSTS = [HOSTNAME.split(":")[0]]
-
 if os.getenv("USE_X_FORWARDED_PROTO", "") == "1":
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SECURE_SSL_REDIRECT = True if not DEBUG else False
+DEBUG = os.getenv("DEBUG") == "1"
+
+BASE_URL = os.environ.get('BASE_URL', '')
+
+if BASE_URL:
+	base_url = urlsplit(BASE_URL)
+
+	ALLOWED_HOSTS = [base_url.hostname]
+
+	if base_url.scheme == 'https':
+		SECURE_SSL_REDIRECT = True
 
 LANGUAGE_CODE = os.getenv("LANG", 'en-us')
 
@@ -144,5 +150,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = BASE_URL + 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
