@@ -10,7 +10,8 @@ class PhoneScope:
 
 	@property
 	def claims(self):
+		# TODO Revisit after we add official support for phone numbers.
 		return {
-			'phone_number': self.user.profile.phone_number,
-			'phone_number_verified': self.user.profile.phone_number_verified,
+			'phone_number': self.user.phone_number,
+			'phone_number_verified': True,
 		}

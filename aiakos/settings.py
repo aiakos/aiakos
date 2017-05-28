@@ -88,11 +88,25 @@ INSTALLED_APPS = [
 	'crispy_forms',
 	'django_inlinecss',
 
-	'django_profile_oidc',
 	'django_extauth',
 	'django_passwords',
 	'aiakos.openid_provider',
 	'aiakos',
+]
+
+AUTH_USER_MODEL = 'aiakos.User'
+
+USER_CORE_MODULES = [
+	'django_modular_user.user:AbstractBaseUser',
+	'django_modular_user.user:UsernameMixin',
+	'django_modular_user.user:FullNameMixin',
+	'django_modular_user.user:PasswordMixin',
+	'django_modular_user.user:ActiveMixin',
+	'django_modular_user.user:StaffMixin',
+	'django_modular_user.user:PermissionsMixin',
+	'django_modular_user.user:LastLoginMixin',
+	'django_modular_user.user:JoinedMixin',
+	'django_modular_user.user:AddressMixin',
 ]
 
 AUTHENTICATION_BACKENDS = (

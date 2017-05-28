@@ -13,5 +13,5 @@ def password_reset_link(site, email):
 	})
 
 def finish_registration_by_email_link(site, email, user):
-	token = auth_token(email, user_id = user.id)
+	token = auth_token(email, user_id = str(user.id))
 	return 'https://' + site.domain + reverse('extauth:finish-registration-by-email', args=[token])

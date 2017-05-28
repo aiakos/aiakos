@@ -35,9 +35,5 @@ class Client(models.Model):
 	def trusted_scopes(self, value):
 		self._trusted_scopes = ' '.join(value)
 
-	@property
-	def profile(self):
-		return self.user.profile
-
 	def __str__(self):
 		return str(self.user)

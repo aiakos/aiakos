@@ -1,29 +1,29 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 if hasattr(settings, 'SCOPES'):
 	SCOPES = settings.SCOPES
 
-elif 'django_profile_oidc' in settings.INSTALLED_APPS:
-	from .profile_oidc import ProfileScope
-	from .email_oidc import EmailScope
-	from .phone_oidc import PhoneScope
-	from .address_oidc import AddressScope
-
-	SCOPES = {
-		'profile': ProfileScope,
-		'email': EmailScope,
-		'phone': PhoneScope,
-		'address': AddressScope,
-	}
-
 else:
-	from .profile_django import ProfileScope
-	from .email_django import EmailScope
+	from .profile import ProfileScope
+	from .email import EmailScope
+	from .phone import PhoneScope
+	from .address import AddressScope
+
+	User = get_user_model()
 
 	SCOPES = {
 		'profile': ProfileScope,
-		'email': EmailScope,
 	}
+
+	if hasattr(User, 'email'):
+		SCOPES['email'] = EmailScope
+
+	if hasattr(User, 'phone_number'):
+		SCOPES['phone'] = PhoneScope
+
+	if hasattr(User, 'address'):
+		SCOPES['address'] = AddressScope
 
 if hasattr(settings, 'CUSTOM_SCOPES'):
 	SCOPES.update(settings.CUSTOM_SCOPES)

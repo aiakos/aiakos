@@ -4,4 +4,5 @@ virtualenv3 .upenv
 pip install .[MySQL,PostgreSQL]
 pip uninstall --yes aiakos
 pip freeze > requirements.txt
+echo 'git+https://gitlab.com/aiakos/django-modular-user.git' >> requirements.txt
 rm -Rf .upenv

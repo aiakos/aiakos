@@ -5,39 +5,20 @@ from django.utils.translation import gettext_lazy as _
 
 from ..models import create_user
 
-
-@staticmethod
-def fill_missing_profile_django(user, userinfo):
-	try:
-		if not user.email:
-			if userinfo.get('email_verified', False):
-				user.email = ei.userinfo.get('email', "")
-	except AttributeError:
-		pass
-
-	try:
-		if not user.first_name:
-			user.first_name = userinfo.get('given_name', "")
-	except AttributeError:
-		pass
-
-	try:
-		if not user.last_name:
-			user.last_name = userinfo.get('family_name', "")
-	except AttributeError:
-		pass
-
+SAFE_FIELDS = ['name', 'nickname']
 
 def pull_userdata_from(ei):
-	if 'django_profile_oidc' in settings.INSTALLED_APPS:
-		ei.user.profile.fill_missing(ei.userinfo)
-	else:
-		fill_missing_profile_django(ei.user, ei.userinfo)
+	for field in SAFE_FIELDS:
+		if not getattr(ei.user, field):
+			newval = ei.userinfo.get(field)
+			if newval:
+				setattr(ei.user, field, newval)
 
 	if ei.provider.inherit_admin_status and ei.userinfo.get('openid-connect-python/is_admin', False):
 		ei.user.is_staff = True
 		ei.user.is_superuser = True
-		ei.user.save()
+
+	ei.user.save()
 
 	for ai in ei.additional_identities:
 		if not ai.exists:

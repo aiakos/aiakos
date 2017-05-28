@@ -36,3 +36,4 @@ rsa==3.4.2
 six==1.10.0
 Werkzeug==0.12.2
 whitenoise==3.3.0
+git+https://gitlab.com/aiakos/django-modular-user.git

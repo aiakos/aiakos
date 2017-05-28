@@ -31,16 +31,11 @@ class AuthRegisterForm(forms.Form):
 			user = create_user(username)
 			user.set_password(password)
 			user.save()
-			user.profile.fill_missing(self.data)
-			user.profile.email = email
-			user.profile.email_verified = False
-			user.profile.phone_number_verified = False
-			user.profile.save()
 
-			send_mail(user.profile.email, 'registration/email/welcome', {
+			send_mail(email, 'registration/email/welcome', {
 				'user': user,
-				'email': user.profile.email,
-				'confirm_email': finish_registration_by_email_link(site, user.profile.email, user),
+				'email': email,
+				'confirm_email': finish_registration_by_email_link(site, email, user),
 			}, request=request)
 			# Note: We can't log in here, as we can't log in in the 'else' case,
 			# and it would tell the attacker if this e-mail is in the database

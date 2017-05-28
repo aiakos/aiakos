@@ -11,5 +11,5 @@ class AddressScope:
 	@property
 	def claims(self):
 		return {
-			'address': self.user.profile.address,
+			'address': self.user.address,
 		}

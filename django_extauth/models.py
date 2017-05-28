@@ -96,6 +96,13 @@ class ExternalIdentityManager(models.Manager):
 
 		return super().get_or_create(sub=sub, provider=provider, **kwargs)
 
+class Profile:
+	def __init__(self, data):
+		self.__dict__ = data
+
+	def __getattr__(self, attr):
+		return self.__dict__.get(attr, '')
+
 class ExternalIdentity(models.Model):
 	objects = ExternalIdentityManager()
 
@@ -129,17 +136,7 @@ class ExternalIdentity(models.Model):
 
 	@property
 	def external_name(self):
-		try:
-			profile = self.profile
-		except ImportError:
-			pass
-		else:
-			if profile.nickname:
-				return profile.nickname
-			if profile.name:
-				return profile.name
-
-		return self.sub
+		return self.profile.nickname or self.profile.name or self.sub
 
 	def __str__(self):
 		return '{} @ {}'.format(self.external_name, self.provider)
@@ -166,8 +163,7 @@ class ExternalIdentity(models.Model):
 
 	@property
 	def profile(self):
-		from django_profile_oidc.models import Profile
-		return Profile.from_dict(self.userinfo)
+		return Profile(self.userinfo)
 
 	@property
 	def additional_identities(self):

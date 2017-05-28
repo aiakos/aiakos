@@ -64,10 +64,6 @@ class FinishRegistrationForm(forms.Form):
 
 		auth_login(request, ei.user) # Because he can reset password and then log in anyway
 
-		if ei.user.profile.email == ei.email:
-			ei.user.profile.email_verified = True
-			ei.user.profile.save()
-
 		return _("Your email was confirmed.")
 
 User = get_user_model()

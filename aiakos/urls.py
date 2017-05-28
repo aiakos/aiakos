@@ -36,5 +36,4 @@ urlpatterns = [
 	url(r'^oauth/', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 
 	url(r'^\.well-known/openid-configuration$', ConfigurationView.as_view()),
-	url(r'^', include('django_profile_oidc.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

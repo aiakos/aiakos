@@ -43,21 +43,28 @@
 					{% if user.is_authenticated %}
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							{% if user.profile.picture %}
-							<img src="{{user.profile.picture}}" style="height: 20px;">
-							{% else %}
-							{{user}}
+							{% if user.picture %}
+							<img src="{{user.picture}}" style="height: 20px;">
+							{% elif user.nickname %}
+							{{user.nickname}}
+							{% elif user.username %}
+							{{user.username}}
+							{% elif user.email %}
+							{{user.email}}
+							{% else %}}
+							{{user.id}}
 							{% endif %}
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu" style="width: 250px;">
 							<li><a style="white-space: normal;">
-								{% blocktrans trimmed %}
-									Signed in as <strong>{{user}}</strong>
-								{% endblocktrans %}
+								{% with user.username as username %}
+									{% blocktrans trimmed %}
+										Signed in as <strong>{{username}}</strong>
+									{% endblocktrans %}
+								{% endwith %}
 							</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="{{user.get_absolute_url}}">{% trans "Your profile" %}</a></li>
 							<li class="{% if request.resolver_match.url_name == 'identities' %}active{% endif %}"><a href="{% url 'extauth:identities' %}">{% trans "External identites" %}</a></li>
 							<li class="{% if request.resolver_match.url_name == 'change-password' %}active{% endif %}"><a href="{% url 'change-password' %}">{% trans "Change password" %}</a></li>
 							<li role="separator" class="divider"></li>
