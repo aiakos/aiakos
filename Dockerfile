@@ -9,6 +9,6 @@ RUN pip install -r requirements.txt
 
 ADD . /app
 
-RUN DJANGO_SECRET_KEY=x AIAKOS_HOSTNAME=x python -m aiakos collectstatic --noinput
+RUN SECRET_KEY=x python -m aiakos collectstatic --noinput
 CMD ["gunicorn", "-k", "gevent", "-b", "[::]:80", "aiakos.wsgi"]
 EXPOSE 80

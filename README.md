@@ -30,16 +30,16 @@ We also provide our own client libraries:
 The recommended way to deploy aiakos is to use the official docker container - [aiakos/aiakos](https://hub.docker.com/r/aiakos/aiakos).
 
 ### Deployment configuration
-Deployment configuration should be provided by environment variables:
+Aiakos is using [dj12](https://gitlab.com/aiakos/dj12) for twelve-factor configuration support.
+
+See [dj12 usage](https://gitlab.com/aiakos/dj12#usage) for a list of supported options. Note that ALLOWED_HOSTS is not required, as it's generated from BASE_URL. Also, we are not using cache right now.
+
+#### Aiakos-specific options
 
 * BASE_URL - base URL at which Aiakos will be available; you should use https scheme!
-* [DJANGO_SECRET_KEY](https://docs.djangoproject.com/en/1.10/ref/settings/#secret-key) - random string
-* DATABASE_URL (required for stateful deployments) - postgres://user:password@hostname/dbname
-* USE_X_FORWARDED_PROTO (optional, default: 0) - set to 1 if deploying behind a reverse proxy
-* DEBUG (optional, default: 0) - set to 1 to display debug information; don't ever enable this on public deployments
+* HOME_URL (optional) - URL to redirect to when a logged in user accesses /; by default he'll get redirected to the app list view
 * BOOTSTRAP_THEME_URL (optional) - Bootstrap theme to use, you can find many free ones at [bootswatch.com](https://bootswatch.com/)
 * BOOTSTRAP_THEME_INTEGRITY (optional) - Integrity checksum of the Bootstrap theme
-* HOME_URL (optional) - URL to redirect to when a logged in user accesses /; by default he'll get redirected to the app list view
 
 ### Migration
 Use `django-admin migrate` to set up / update the database.
