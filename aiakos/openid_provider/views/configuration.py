@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.views.generic import View
 
 from ..issuer import issuer
+from ..scopes import SCOPES
 
 
 class ConfigurationView(View):
@@ -19,7 +20,7 @@ class ConfigurationView(View):
 			response_types_supported = ['code', 'token', 'id_token', 'code token', 'code id_token', 'token id_token', 'code token id_token', 'none'],
 			subject_types_supported = ['public'],
 			id_token_signing_alg_values_supported = ['RS256'],
-			scopes_supported = ['openid', 'profile', 'email', 'phone', 'address'],
+			scopes_supported = ['openid'] + list(SCOPES.keys()),
 			token_endpoint_auth_methods_supported = ['client_secret_basic'],
 		)
 
