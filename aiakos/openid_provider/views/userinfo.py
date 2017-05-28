@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
+from ..scopes import SCOPES
 from ..userinfo import makeUserInfo
 
 
@@ -13,7 +14,10 @@ class UserInfoView(View):
 
 	def get(self, request):
 		"""http://openid.net/specs/openid-connect-core-1_0.html#UserInfo"""
-		info = makeUserInfo(request.user, request.token.client, request.token.scope)
+		if hasattr(request, 'token') and request.token:
+			info = makeUserInfo(request.user, request.token.client, request.token.scope)
+		else:
+			info = makeUserInfo(request.user, None, SCOPES.keys())
 
 		response = JsonResponse(info, status=200)
 		response['Access-Control-Allow-Origin'] = '*'
