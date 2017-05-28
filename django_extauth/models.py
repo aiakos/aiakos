@@ -8,7 +8,6 @@ from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 
 import yaml
-
 from openid_connect import connect
 from openid_connect.legacy import PROTOCOLS
 
