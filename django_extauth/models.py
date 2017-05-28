@@ -109,7 +109,7 @@ class ExternalIdentity(models.Model):
 	sub = models.CharField(max_length=200)
 	provider = models.ForeignKey(IdentityProvider)
 
-	userinfo_yaml = models.TextField(default="", verbose_name="User information")
+	userinfo_yaml = models.TextField(verbose_name="User information", blank=True)
 
 	@property
 	def exists(self):
