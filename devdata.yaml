@@ -1,11 +1,9 @@
-- model: auth.user
-  pk: 1
+- model: aiakos.user
+  pk: '00000000-0000-0000-0000-000000000000'
   fields:
     username: root
+    name: The Administrator
     password: pbkdf2_sha256$36000$yiaCSUyKhHxt$eo1u1o/2CdRlThWrYXxn0ILeDrKBjoVBn0yh1DUpwVM= # root
-    first_name: ''
-    last_name: ''
-    email: ''
     is_superuser: true
     is_staff: true
     is_active: true
@@ -13,30 +11,3 @@
     user_permissions: []
     date_joined: 2017-01-01 00:00:00Z
     last_login: null
-- model: django_profile_oidc.profile
-  pk: 1
-  fields:
-    user: 1
-    name: The Administrator
-    given_name: Administrator
-    family_name: ''
-    middle_name: ''
-    nickname: ''
-    preferred_username: root
-    profile: ''
-    picture: ''
-    website: ''
-    gender: ''
-    birthdate: null
-    zoneinfo: ''
-    locale: ''
-    email: ''
-    email_verified: false
-    phone_number: ''
-    phone_number_verified: false
-    address_formatted: ''
-    address_street: ''
-    address_locality: ''
-    address_region: ''
-    address_postal_code: ''
-    address_country: ''
