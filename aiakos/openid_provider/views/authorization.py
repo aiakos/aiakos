@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
@@ -50,7 +51,7 @@ class AuthorizationView(View):
 		try:
 			User = get_user_model()
 			service_account = User.objects.get(id=client_id)
-		except User.DoesNotExist:
+		except (User.DoesNotExist, ValidationError):
 			return HttpResponseNotFound(_("Invalid client ID"))
 
 		try:

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
+from django.core.exceptions import ValidationError
 
 from .models import PasswordBackend
 
@@ -54,7 +55,7 @@ class DjangoBackend(ModelBackend):
 		if user_id is not None:
 			try:
 				user = User._default_manager.get(id=user_id)
-			except User.DoesNotExist:
+			except (User.DoesNotExist, ValidationError):
 				pass
 
 		if check_password(user, password):
