@@ -23,7 +23,7 @@ def _auth_code(request):
 	except ValueError:
 		raise invalid_grant()
 
-	if not code.client.is_valid_redirect_uri(redirect_uri):
+	if redirect_uri not in code.client.redirect_uris:
 		raise invalid_grant()
 
 	return code

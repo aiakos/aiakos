@@ -28,3 +28,14 @@ def uri_matches(uri, patterns, allow_wildcard=False):
 				return True
 
 	return False
+
+class URIList:
+	def __init__(self, patterns, allow_wildcard=False):
+		self.patterns = patterns
+		self.allow_wildcard = allow_wildcard
+
+	def __contains__(self, uri):
+		return uri_matches(uri, self.patterns, allow_wildcard=self.allow_wildcard)
+
+	def __iter__(self):
+		return iter(self.patterns)

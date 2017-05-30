@@ -17,7 +17,7 @@ test:
   stage: test
   image: registry.gitlab.com/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_BUILD_REF
   script:
-  - python -m aiakos.openid_provider.uri_match_test
+  - python -m aiakos.openid_provider.uri_list_test
 
 push-to-github:
   stage: sync
