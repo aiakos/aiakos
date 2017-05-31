@@ -5,8 +5,11 @@ class UserMixin:
 
 	@property
 	def email(self):
-		# TODO Provide a way to set the main email address.
-		return self.externalidentity_set.filter(provider__protocol="")[0].email
+		# TODO Provide a way to choose the main email address.
+		try:
+			return self.externalidentity_set.filter(provider__protocol="")[0].email
+		except IndexError:
+			return None
 
 	@property
 	def external_identities(self):
