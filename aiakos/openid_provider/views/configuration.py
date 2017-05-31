@@ -20,6 +20,7 @@ class ConfigurationView(View):
 			authorization_endpoint = request.build_absolute_uri(reverse('openid_provider:authorization')),
 			token_endpoint         = request.build_absolute_uri(reverse('openid_provider:token')),
 			userinfo_endpoint      = request.build_absolute_uri(reverse('openid_provider:userinfo')),
+			end_session_endpoint   = request.build_absolute_uri(reverse('openid_provider:logout')),
 			jwks_uri               = request.build_absolute_uri(reverse('openid_provider:jwks')),
 
 			response_types_supported = ['code', 'token', 'id_token', 'code token', 'code id_token', 'token id_token', 'code token id_token', 'none'],

@@ -77,6 +77,8 @@ EMAIL_USE_SSL = _EMAIL_CONFIG['EMAIL_USE_SSL']
 
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_FROM', "webmaster@localhost")
 
+INSECURE_END_SESSION_ENDPOINT = os.getenv('INSECURE_END_SESSION_ENDPOINT') in ['1', 'on', 'yes', 'true']
+
 # Application definition
 
 INSTALLED_APPS = [
