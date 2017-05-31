@@ -73,7 +73,7 @@ class TokenView(View):
 
 		response = {}
 
-		token_type, access_token, expires_in = makeAccessToken(client=code.client, user=request.user, scope=code.scope, confidential=code.client.confidential)
+		token_type, access_token, expires_in = makeAccessToken(client=code.client, user=code.user, scope=code.scope, confidential=code.client.confidential)
 		response['token_type'] = token_type
 		response['access_token'] = access_token
 		response['expires_in'] = expires_in
