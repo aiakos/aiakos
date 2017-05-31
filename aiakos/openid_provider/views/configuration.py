@@ -8,6 +8,11 @@ from ..scopes import SCOPES
 
 class ConfigurationView(View):
 
+	def dispatch(self, request):
+		response = super().dispatch(request)
+		response['Access-Control-Allow-Origin'] = '*'
+		return response
+
 	def get(self, request):
 		config = dict(
 			issuer = issuer.url,
@@ -24,6 +29,4 @@ class ConfigurationView(View):
 			token_endpoint_auth_methods_supported = ['client_secret_basic', 'client_secret_post'],
 		)
 
-		response = JsonResponse(config, json_dumps_params={'indent': True})
-		response['Access-Control-Allow-Origin'] = '*'
-		return response
+		return JsonResponse(config, json_dumps_params={'indent': True})

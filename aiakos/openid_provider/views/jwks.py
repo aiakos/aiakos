@@ -9,6 +9,11 @@ from ..models import RSAKey
 
 class JWKSView(View):
 
+	def dispatch(self, request):
+		response = super().dispatch(request)
+		response['Access-Control-Allow-Origin'] = '*'
+		return response
+
 	def get(self, request):
 		dic = dict(keys=[])
 
@@ -23,6 +28,4 @@ class JWKSView(View):
 				'e': long_to_base64(public_key.e),
 			})
 
-		response = JsonResponse(dic)
-		response['Access-Control-Allow-Origin'] = '*'
-		return response
+		return JsonResponse(dic)

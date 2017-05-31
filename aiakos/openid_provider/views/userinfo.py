@@ -7,8 +7,13 @@ from ..scopes import SCOPES
 from ..userinfo import makeUserInfo
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch') # for post
 class UserInfoView(View):
+
+	def dispatch(self, request):
+		response = super().dispatch(request)
+		response['Access-Control-Allow-Origin'] = '*'
+		return response
 
 	def get(self, request):
 		if not request.user:
@@ -20,11 +25,7 @@ class UserInfoView(View):
 		else:
 			info = makeUserInfo(request.user, None, SCOPES.keys())
 
-		response = JsonResponse(info, status=200)
-		response['Access-Control-Allow-Origin'] = '*'
-		response['Cache-Control'] = 'no-store'
-		response['Pragma'] = 'no-cache'
-		return response
+		return JsonResponse(info, status=200)
 
 	def post(self, request):
 		"""The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616]."""
