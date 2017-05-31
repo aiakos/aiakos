@@ -43,6 +43,9 @@ def check_password(user, password):
 
 class DjangoBackend(ModelBackend):
 	def authenticate(self, request=None, user=None, user_id=None, username=None, password=None, **kwargs):
+		if not password:
+			return
+
 		if username is None:
 			username = kwargs.get(User.USERNAME_FIELD)
 
