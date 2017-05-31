@@ -90,6 +90,7 @@ INSTALLED_APPS = [
 	'crispy_forms',
 	'django_inlinecss',
 
+	'django_request_user',
 	'django_extauth',
 	'django_passwords',
 	'aiakos.openid_provider',
@@ -115,6 +116,12 @@ AUTHENTICATION_BACKENDS = (
 	'django_passwords.django_backend.DjangoBackend',
 )
 
+REQUEST_USER_BACKENDS = (
+	'aiakos.openid_provider.request_user:BearerTokenAuth',
+	'aiakos.openid_provider.request_user:ClientSecretBasicAuth',
+	'django.contrib.auth',
+)
+
 MIDDLEWARE = [
 	'aiakos.health.HealthcheckMiddleware',
 	'django.middleware.security.SecurityMiddleware',
@@ -122,11 +129,10 @@ MIDDLEWARE = [
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	'aiakos.openid_provider.middleware.BearerTokenAuth',
-	'aiakos.openid_provider.middleware.ClientSecretBasicAuth',
+	'django_headers.HeadersMiddleware',
+	'django_www_authenticate.WWWAuthenticateMiddleware',
 ]
 
 LOGIN_REDIRECT_URL = '/'
