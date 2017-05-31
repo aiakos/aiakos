@@ -14,6 +14,8 @@ if os.getenv("USE_X_FORWARDED_PROTO", "") == "1":
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 DEBUG = os.getenv("DEBUG") == "1"
+if DEBUG:
+	DEBUG_PROPAGATE_EXCEPTIONS = True
 
 BASE_URL = os.environ.get('BASE_URL', '')
 
