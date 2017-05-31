@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -22,5 +23,5 @@ def expandCode(code):
 		code = Code.objects.get(id=code)
 		code.delete() # TODO use atomic get-and-delete
 		return code
-	except Code.DoesNotExist:
+	except (Code.DoesNotExist, ValidationError):
 		raise ValueError()
