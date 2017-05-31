@@ -51,3 +51,13 @@ def ClientSecretBasicAuth(request):
 		user = authenticate(request=request, user_id=uname, password=passwd)
 		if user:
 			return user
+
+
+def ClientSecretPostAuth(request):
+	client_id = request.POST.get('client_id')
+	client_secret = request.POST.get('client_secret')
+
+	if client_id and client_secret:
+		user = authenticate(request=request, user_id=client_id, password=client_secret)
+		if user:
+			return user

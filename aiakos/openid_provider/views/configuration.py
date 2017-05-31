@@ -21,7 +21,7 @@ class ConfigurationView(View):
 			subject_types_supported = ['public'],
 			id_token_signing_alg_values_supported = ['RS256'],
 			scopes_supported = ['openid'] + list(SCOPES.keys()),
-			token_endpoint_auth_methods_supported = ['client_secret_basic'],
+			token_endpoint_auth_methods_supported = ['client_secret_basic', 'client_secret_post'],
 		)
 
 		response = JsonResponse(config, json_dumps_params={'indent': True})
