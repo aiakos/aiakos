@@ -118,6 +118,7 @@ AUTHENTICATION_BACKENDS = (
 
 REQUEST_USER_BACKENDS = (
 	'aiakos.openid_provider.request_user:BearerTokenAuth',
+	'aiakos.openid_provider.request_user:BearerTokenPostAuth',
 	'aiakos.openid_provider.request_user:ClientSecretBasicAuth',
 	'aiakos.openid_provider.request_user:ClientSecretPostAuth',
 	'django.contrib.auth',

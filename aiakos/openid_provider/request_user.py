@@ -39,6 +39,17 @@ def BearerTokenAuth(request):
 			params['error_description'] = _("The access token provided is expired, revoked, malformed, or invalid for other reasons.")
 
 
+def BearerTokenPostAuth(request):
+	token = request.POST.get('access_token')
+
+	if token is not None:
+		try:
+			request.token = expandAccessToken(token)
+			return request.token.user
+		except ValueError:
+			pass
+
+
 def ClientSecretBasicAuth(request):
 	params = dict(
 		realm = settings.BASE_URL,
