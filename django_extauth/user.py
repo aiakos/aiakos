@@ -9,7 +9,7 @@ class UserMixin:
 		try:
 			return self.externalidentity_set.filter(provider__protocol="")[0].email
 		except IndexError:
-			return None
+			return ''
 
 	@property
 	def external_identities(self):
