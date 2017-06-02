@@ -16,7 +16,7 @@ class ProfileScope:
 			'family_name': getattr(self.user, 'family_name', None),
 			'middle_name': getattr(self.user, 'middle_name', None),
 			'nickname': getattr(self.user, 'nickname', None),
-			'preferred_username': getattr(self.user, 'preferred_username', None),
+			'preferred_username': getattr(self.user, 'preferred_username', getattr(self.user, 'username', None)),
 			'profile': getattr(self.user, 'profile', None),
 			'picture': getattr(self.user, 'picture', None),
 			'website': getattr(self.user, 'website', None),
