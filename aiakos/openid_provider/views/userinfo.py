@@ -23,7 +23,7 @@ class UserInfoView(View):
 		if hasattr(request, 'token') and request.token:
 			info = makeUserInfo(request.user, request.token.client, request.token.scope)
 		else:
-			info = makeUserInfo(request.user, None, SCOPES.keys())
+			info = makeUserInfo(request.user, None, ['openid'] + list(SCOPES.keys()))
 
 		return JsonResponse(info, status=200)
 
