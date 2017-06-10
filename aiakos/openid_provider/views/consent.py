@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
@@ -13,6 +14,8 @@ from ..scopes import SCOPES
 from ..tokens import *
 from .auth_request import AuthRequest
 
+User = get_user_model()
+
 
 @method_decorator(login_required, name='dispatch')
 class ConsentView(TemplateView):
@@ -20,12 +23,21 @@ class ConsentView(TemplateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+		context['user'] = self.user
 		context['client'] = self.auth_request.client
 		context['scope'] = {name: desc for name, desc in SCOPES.items() if name in self.req_untrusted_scope}
 		context['hidden_inputs'] = mark_safe('<input type="hidden" name="request" value="{}">'.format(self.auth_request.id))
 		return context
 
-	def dispatch(self, request):
+	def dispatch(self, request, user_id):
+		try:
+			self.user = User.objects.get(pk=user_id)
+		except User.DoesNotExist:
+			raise Http404()
+
+		if not request.user.has_perm('openid_provider:impersonate', self.user):
+			raise PermissionDenied()
+
 		self.auth_request = AuthRequest(request)
 
 		self.req_scope = set(self.auth_request['scope'].split(' '))
@@ -46,7 +58,7 @@ class ConsentView(TemplateView):
 
 			if self.req_untrusted_scope:
 				try:
-					uc = UserConsent.objects.get(user=self.request.user, client=self.auth_request.client)
+					uc = UserConsent.objects.get(user=self.user, client=self.auth_request.client)
 					if not self.req_untrusted_scope.issubset(uc.scope):
 						raise consent_required()
 				except UserConsent.DoesNotExist:
@@ -65,9 +77,9 @@ class ConsentView(TemplateView):
 			return self.auth_request.deny(access_denied())
 
 		if self.auth_request.client.confidential:
-			uc, created = UserConsent.objects.get_or_create(user=request.user, client=self.auth_request.client)
+			uc, created = UserConsent.objects.get_or_create(user=self.user, client=self.auth_request.client)
 		else:
-			uc = UserConsent(user=request.user, client=self.auth_request.client)
+			uc = UserConsent(user=self.user, client=self.auth_request.client)
 
 		# TODO add a way to turn on and off single permissions
 		uc.scope |= self.req_untrusted_scope
@@ -87,19 +99,19 @@ class ConsentView(TemplateView):
 
 		code = None
 		if 'code' in self.auth_request.response_type:
-			code = makeCode(client=self.auth_request.client, user=self.request.user, scope=scope, nonce=self.auth_request.nonce)
+			code = makeCode(client=self.auth_request.client, user=self.user, scope=scope, nonce=self.auth_request.nonce)
 			response['code'] = code
 
 		token_type, access_token, expires_in = None, None, None
 		if 'token' in self.auth_request.response_type:
-			token_type, access_token, expires_in = makeAccessToken(client=self.auth_request.client, user=self.request.user, scope=scope, confidential=False)
+			token_type, access_token, expires_in = makeAccessToken(client=self.auth_request.client, user=self.user, scope=scope, confidential=False)
 			response['token_type'] = token_type
 			response['access_token'] = access_token
 			response['expires_in'] = expires_in
 
 		id_token = None
 		if 'id_token' in self.auth_request.response_type and 'openid' in scope:
-			id_token = makeIDToken(request=self.request, client=self.auth_request.client, user=self.request.user, scope=scope, nonce=self.auth_request.nonce, at=access_token, c=code)
+			id_token = makeIDToken(request=self.request, client=self.auth_request.client, user=self.user, scope=scope, nonce=self.auth_request.nonce, at=access_token, c=code)
 			response['id_token'] = id_token
 
 		return self.auth_request.respond(response)

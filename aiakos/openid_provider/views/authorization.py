@@ -49,7 +49,7 @@ class AuthorizationView(View):
 
 			data = json.dumps(auth_request.data)
 			id = uuid4().hex
-			check_consent = reverse('openid_provider:consent') + '?request=' + id
+			check_consent = reverse('openid_provider:consent', args=[request.user.pk]) + '?request=' + id
 
 			if not request.user.is_authenticated:
 				if 'none' in prompt:
