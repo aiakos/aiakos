@@ -29,9 +29,6 @@
 
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-				{% if user.is_authenticated %}
-					<li class="{% if request.resolver_match.url_name == 'apps' %}active{% endif %}"><a href="{% url 'apps' %}">{% trans "Apps" %}</a></li>
-				{% endif %}
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
