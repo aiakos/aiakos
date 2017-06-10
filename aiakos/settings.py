@@ -33,7 +33,7 @@ DATABASES = {
 	'default': dj_database_url.config(conn_max_age=600, default="sqlite:///" + os.path.join(BASE_DIR, 'db.sqlite3'))
 }
 
-HOME_URL = os.getenv('HOME_URL')
+HOME_URL = os.getenv('HOME_URL', '/auth/settings/')
 
 LOGGING = {
 	'version': 1,
@@ -92,6 +92,7 @@ INSTALLED_APPS = [
 	'crispy_forms',
 	'django_inlinecss',
 
+	'aiakos.multiuser',
 	'django_request_user',
 	'django_extauth',
 	'django_passwords',
@@ -137,6 +138,7 @@ MIDDLEWARE = [
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django_headers.HeadersMiddleware',
 	'django_www_authenticate.WWWAuthenticateMiddleware',
+	'aiakos.multiuser.prepend_user.PrependUser',
 ]
 
 LOGIN_URL = '/auth/login/'

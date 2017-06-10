@@ -32,14 +32,14 @@
 					{% if user.id %}
 					<li class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}"><a href="{% url 'extauth:settings' user.id %}">{% trans "Sign-in settings" %}</a></li>
 					{% endif %}
-				</ul>
-
-				<ul class="nav navbar-nav navbar-right">
-					{% if user.is_staff %}
+					{% if request.user.is_staff %}
 					<li>
 						<a href="/admin/">{% trans "Admin" %}</a>
 					</li>
 					{% endif %}
+				</ul>
+
+				<ul class="nav navbar-nav navbar-right">
 					{% if user.is_authenticated %}
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -57,14 +57,16 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu" style="width: 250px;">
-							<li><a style="white-space: normal;">
-								{% with user.username as username %}
-									{% blocktrans trimmed %}
-										Signed in as <strong>{{username}}</strong>
-									{% endblocktrans %}
-								{% endwith %}
-							</a></li>
+							{% for account in request.user.accounts %}
+							<li class="{% if account == user %}active{% endif %}">
+								<a{% if account.switch %} href="{{account.switch}}"{% endif %}>
+									<l><strong>{{account.username}}</strong></l>
+									<l>{{account.email}}</l>
+								</a>
+							</li>
+							{% endfor %}
 							<li role="separator" class="divider"></li>
+							<li><a href="{% url 'extauth:login' %}">{% trans "Add account" %}</a></li>
 							<li><a href="{% url 'extauth:logout' %}">{% trans "Sign out" %}</a></li>
 						</ul>
 					</li>

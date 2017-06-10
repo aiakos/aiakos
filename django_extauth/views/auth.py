@@ -54,7 +54,7 @@ def get_error_url(request, error):
 
 class AuthView(TemplateView):
 	template_name = 'registration/auth.html'
-	redirect_authenticated_user = True
+	redirect_authenticated_user = False
 
 	class LoginForm(AuthLoginForm):
 		method = forms.CharField(widget = forms.HiddenInput(), required = True, initial = 'login')

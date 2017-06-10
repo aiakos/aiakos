@@ -31,7 +31,7 @@ def get_request_user(request):
 	except AttributeError:
 		for backend in backends:
 			user = backend(request)
-			if user and user.is_authenticated:
+			if user:
 				request._user = user
 				return request._user
 
