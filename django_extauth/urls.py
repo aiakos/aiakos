@@ -6,7 +6,7 @@ from . import user, views
 app_name = 'extauth'
 
 urlpatterns = [
-	url(r'^$', views.IdentitiesView.as_view(), name='identities'),
+	url(r'^u/(?P<user_id>[^/]+)/auth/settings/$', views.SettingsView.as_view(), name='settings'),
 
 	url(r'^login/$', views.AuthView.as_view(), name='login'),
 	url(r'^oauth-done/$', views.OAuthDoneView.as_view(), name='oauth-done'),
@@ -19,5 +19,5 @@ urlpatterns = [
 
 oauth_actions = {
 	'login': views.AuthView,
-	'associate': views.IdentitiesView,
+	'associate': views.SettingsView,
 }

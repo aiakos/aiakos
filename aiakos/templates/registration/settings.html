@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load i18n static crispy_forms_tags %}
+
+{% block content %}
+
+<div class="row">
+	{% if user.external_identities %}
+	<div class="col-md-6">
+		<form method="post">
+			{% csrf_token %}
+			<h2>{% trans "Your external identities" %}</h2>
+			{% for ei in user.external_identities %}
+			<div class="media">
+				<div class="media-left">
+					{% if ei.profile.profile %}
+					<a href="{{ei.profile.profile}}">
+					{% endif %}
+						<img class="media-object" src="{{ei.profile.picture}}" style="max-height: 50px; max-width: 50px">
+					{% if ei.profile.profile %}
+					</a>
+					{% endif %}
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading">{{ei.external_name}} @ {{ei.provider}}</h4>
+					<button type="submit" name="disconnect" value="{{ei.id}}" class="btn btn-default btn-xs">{% trans "Disconnect" %}</button>
+					{% if ei.provider.protocol %}
+						{% if ei.trusted %}
+						<button type="submit" name="untrust" value="{{ei.id}}" class="btn btn-default btn-xs">{% trans "Disable login" %}</button>
+						{% else %}
+						<button type="submit" name="trust" value="{{ei.id}}" class="btn btn-default btn-xs">{% trans "Enable login" %}</button>
+						{% endif %}
+					{% else %}
+						{% if ei.trusted %}
+						<button type="submit" name="untrust" value="{{ei.id}}" class="btn btn-default btn-xs">{% trans "Disable password reset" %}</button>
+						{% else %}
+						<button type="submit" name="trust" value="{{ei.id}}" class="btn btn-default btn-xs">{% trans "Enable password reset" %}</button>
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+			{% endfor %}
+		</form>
+	</div>
+	{% endif %}
+
+	{% if identity_providers %}
+	<div class="col-md-6">
+		<form method="post">
+			{% csrf_token %}
+			<h2>Connect another identity</h2>
+			<div class="row">
+				<div class="col-md-8">
+					{% for provider in identity_providers %}
+					<button type="submit" name="connect" value="{{provider.domain}}" class="btn btn-default btn-block">
+						{% blocktrans trimmed %}
+							Sign in with {{provider}}
+						{% endblocktrans %}
+					</button>
+					{% endfor %}
+				</div>
+			</div>
+		</form>
+	</div>
+	{% endif %}
+
+	{% if set_password_form %}
+	<div class="col-md-6">
+		<form method="post">
+			{% csrf_token %}
+			<h2>{% trans "Change password" %}</h2>
+			{{ set_password_form|crispy }}
+			<button type="submit" name="set-password" class="btn btn-default btn-block">{% trans "Change password" %}</button>
+		</form>
+	</div>
+	{% endif %}
+
+</div>
+{% endblock %}

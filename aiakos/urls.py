@@ -26,7 +26,6 @@ urlpatterns = [
 	url(r'^admin/', admin.site.urls),
 
 	url(r'^accounts/', include('django_extauth.urls', namespace='extauth')),
-	url(r'^accounts/change-password/$', login_required(views.password_change), name='change-password'),
 
 	url(r'^', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
