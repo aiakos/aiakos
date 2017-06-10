@@ -45,7 +45,7 @@ class ConsentView(TemplateView):
 
 		self.req_untrusted_scope = self.req_scope - self.auth_request.client.trusted_scopes
 
-		self.prompt = self.auth_request['prompt']
+		self.prompt = self.auth_request['prompt'].split(' ')
 
 		return super().dispatch(request)
 
@@ -53,7 +53,7 @@ class ConsentView(TemplateView):
 		uc = None
 
 		try:
-			if self.prompt == 'consent':
+			if 'consent' in self.prompt:
 				raise consent_required()
 
 			if self.req_untrusted_scope:
@@ -65,7 +65,7 @@ class ConsentView(TemplateView):
 					raise consent_required()
 
 		except consent_required:
-			if self.prompt == 'none':
+			if 'none' in self.prompt:
 				return self.auth_request.deny(interaction_required())
 
 			return super().get(request)

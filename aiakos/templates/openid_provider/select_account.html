@@ -1,0 +1,42 @@
+{% extends 'narrow.html' %}
+{% load i18n staticfiles %}
+
+{% block content %}
+
+<h2>{% trans 'Choose an account' %}</h2>
+<p class="lead">
+{% with auth_request.redirect_host as target %}
+	{% blocktrans %}to continue to {{target}}{% endblocktrans %}
+{% endwith %}
+</p>
+
+<div class="list-group">
+	{% for account in request.user.accounts %}
+	<a href="{{account.consent_url}}" class="list-group-item">
+		<div class="media">
+			<div class="media-left">
+				<!-- TODO avatars -->
+				<img class="media-object" src="https://gitlab.com/uploads/system/project/avatar/2734815/aiakos.png" style="width: 3.2em; height: 3.2em; object-fit: contain;">
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{{account.name}}</h4>
+				<p>{{account.username}}</p>
+			</div>
+		</div>
+	</a>
+	{% endfor %}
+
+	<a href="{{login_url}}" class="list-group-item">
+		<div class="media">
+			<div class="media-left">
+				<!-- TODO grayscale Aiakos logo -->
+				<img class="media-object" src="https://gitlab.com/uploads/system/project/avatar/2734815/aiakos.png" style="width: 3.2em; height: 3.2em; object-fit: contain;">
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{% trans "Use another account" %}</h4>
+			</div>
+		</div>
+	</a>
+</div>
+
+{% endblock %}

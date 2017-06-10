@@ -38,27 +38,16 @@ class AuthorizationView(View):
 				raise invalid_request()
 
 			for p in prompt:
-				if not p in {'none', 'consent'}:
+				if not p in {'none', 'select_account', 'consent'}:
 					raise server_error("Unimplemented prompt type.")
 
 			if 'max_age' in auth_request:
 				raise server_error("max_age is not implemented.")
 
-			if 'id_token_hint' in auth_request:
-				raise server_error("id_token_hint is not implemented.")
-
 			data = json.dumps(auth_request.data)
 			id = uuid4().hex
-			check_consent = reverse('openid_provider:consent', args=[request.user.pk]) + '?request=' + id
 
-			if not request.user.is_authenticated:
-				if 'none' in prompt:
-					raise interaction_required()
-
-				res = redirect_to_login(check_consent)
-			else:
-				res = redirect(check_consent)
-
+			res = redirect(reverse('openid_provider:select-account') + '?request=' + id)
 			res.set_cookie('auth_request_' + id, data)
 			return res
 

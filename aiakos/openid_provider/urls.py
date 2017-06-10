@@ -8,6 +8,7 @@ urlpatterns = [
 	url(r'^\.well-known/openid-configuration$', views.ConfigurationView.as_view()),
 
 	url(r'^oauth/authorize/$', views.AuthorizationView.as_view(), name='authorization'),
+	url(r'^oauth/select-account/$', views.SelectAccountView.as_view(), name='select-account'),
 	url(r'^u/(?P<user_id>[^/]+)/oauth/consent/$', views.ConsentView.as_view(), name='consent'),
 	url(r'^oauth/token/$', views.TokenView.as_view(), name='token'),
 	url(r'^oauth/userinfo/$', views.UserInfoView.as_view(), name='userinfo'),

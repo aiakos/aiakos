@@ -115,7 +115,14 @@ class AuthRequest:
 		if self.redirect_uri and self.redirect_uri not in getattr(self.client, self.redirect_uri_set):
 			raise BadRequest(_("Invalid redirect_uri."))
 
+	@property
+	def redirect_host(self):
+		return urlsplit(self.redirect_uri).hostname
+
 	def __getitem__(self, key):
+		if hasattr(self, key):
+			return getattr(self, key)
+
 		return self.data.get(key) or ''
 
 	def __contains__(self, key):
