@@ -22,7 +22,8 @@ class ConsentView(TemplateView):
 		context = super().get_context_data(**kwargs)
 		context['client'] = self.auth_request.client
 		context['scope'] = {name: desc for name, desc in SCOPES.items() if name in self.req_untrusted_scope}
-		context['hidden_inputs'] = mark_safe('<input type="hidden" name="request" value="{}">'.format(self.auth_request.id)),
+		context['hidden_inputs'] = mark_safe('<input type="hidden" name="request" value="{}">'.format(self.auth_request.id))
+		return context
 
 	def dispatch(self, request):
 		self.auth_request = AuthRequest(request)
