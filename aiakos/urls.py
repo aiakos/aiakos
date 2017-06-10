@@ -21,7 +21,6 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView, TemplateView
 
 from . import views
-from .openid_provider.views import ConfigurationView
 
 urlpatterns = [
 	url(r'^$', login_required(RedirectView.as_view(url=settings.HOME_URL)), name='home'),
@@ -33,7 +32,5 @@ urlpatterns = [
 	url(r'^accounts/', include('django_extauth.urls', namespace='extauth')),
 	url(r'^accounts/change-password/$', login_required(views.password_change), name='change-password'),
 
-	url(r'^oauth/', include('aiakos.openid_provider.urls', namespace='openid_provider')),
-
-	url(r'^\.well-known/openid-configuration$', ConfigurationView.as_view()),
+	url(r'^', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
