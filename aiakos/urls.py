@@ -25,7 +25,7 @@ urlpatterns = [
 
 	url(r'^admin/', admin.site.urls),
 
-	url(r'^accounts/', include('django_extauth.urls', namespace='extauth')),
+	url(r'^', include('django_extauth.urls', namespace='extauth')),
 
 	url(r'^', include('aiakos.openid_provider.urls', namespace='openid_provider')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

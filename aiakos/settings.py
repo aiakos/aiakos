@@ -139,6 +139,7 @@ MIDDLEWARE = [
 	'django_www_authenticate.WWWAuthenticateMiddleware',
 ]
 
+LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
 
 ABSOLUTE_URL_OVERRIDES = {
