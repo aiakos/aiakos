@@ -171,8 +171,8 @@ class AuthView(TemplateView):
 				else:
 					messages.success(request, resp)
 
-				if request.user:
-					return HttpResponseRedirect(get_success_url(self.request).replace('%7Bid%7D', str(request.user.default.pk)))
+				if hasattr(form, 'user') and form.user:
+					return HttpResponseRedirect(get_success_url(self.request).replace('%7Bid%7D', str(form.user.pk)))
 			else:
 				self._method = method
 				if method == 'login':
