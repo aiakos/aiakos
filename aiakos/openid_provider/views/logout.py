@@ -38,8 +38,9 @@ class LogoutView(View):
 			if not req or not getattr(settings, 'INSECURE_END_SESSION_ENDPOINT', False):
 				raise NotImplementedError('Logout confirmation view is not yet implemented')
 
-		if req.id_hint['sub'] == str(request.user.id):
-			logout(request)
+		for acc in request.user.accounts:
+			if req.id_hint['sub'] == str(acc.id):
+				logout(request)
 
 		if req and req.redirect_uri:
 			return req.respond({})
