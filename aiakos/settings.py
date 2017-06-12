@@ -69,6 +69,7 @@ MIDDLEWARE = [
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 ABSOLUTE_URL_OVERRIDES = {
 	'auth.user': lambda u: "/%s/" % u.username,
