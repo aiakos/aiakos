@@ -105,7 +105,10 @@ class User:
 
 	@property
 	def pk(self):
-		return next(acc for acc in self.accounts if acc.is_staff).pk
+		return self.default.pk
+
+	def get_username(self):
+		return self.default.get_username()
 
 
 def get_user(request):
