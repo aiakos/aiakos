@@ -29,6 +29,9 @@ setup(
 		"whitenoise",
 		"Werkzeug",
 		"django_inlinecss",
+		'djangorestframework',
+		'django-filter',
+		'markdown',
 	],
 
 	extras_require={

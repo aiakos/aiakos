@@ -17,6 +17,7 @@ INSTALLED_APPS = [
 	'raven.contrib.django.raven_compat',
 	'crispy_forms',
 	'django_inlinecss',
+	'rest_framework',
 
 	'aiakos.multiuser',
 	'django_request_user',
