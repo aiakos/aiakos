@@ -13,26 +13,25 @@
     last_login: null
 
 
+
+- model: "openid_provider.app"
+  pk: 1
+  fields:
+    name: Localhost
+    uri: http://localhost:8000/
+    initiate_login_uri: http://localhost:8000/auth/
+
 - model: aiakos.user
   pk: 'ea1c25ed-2da9-4c82-a921-b87cff97b646'
   fields:
     username: localhost
-    name: Localhost
     password: pbkdf2_sha256$36000$hy53pYD7KeNk$zg8jB3kcVup6FQ+NhschCkll6T4WIbZavy6WWEyFCw4= # dummy
-    is_superuser: false
-    is_staff: false
     is_active: true
-    groups: []
-    user_permissions: []
-    date_joined: 2017-01-01 00:00:00Z
-    last_login: null
-- model: "openid_provider.client"
-  pk: 3
-  fields:
-    user: 'ea1c25ed-2da9-4c82-a921-b87cff97b646'
-    confidential: true
-    _redirect_uris: |
+
+    oauth_app_id: 1
+    oauth_auth_method: client_secret_basic
+    _oauth_redirect_uris: |
         http://localhost:8000/auth/done/
-    _post_logout_redirect_uris: |
+    _oauth_post_logout_redirect_uris: |
         http://localhost:8000/
-    allow_wildcard_redirect: true
+    oauth_allow_wildcard_redirect: true

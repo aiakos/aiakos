@@ -13,8 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from jose import jwt
 
-from ..models import Client
-
 log = logging.getLogger(__name__)
 
 
@@ -101,18 +99,16 @@ class AuthRequest:
 		if not client_id:
 			raise BadRequest(_("Missing client_id."))
 		try:
-			service_account = User.objects.get(id=client_id)
+			self.client = User.objects.get(id=client_id)
 		except (User.DoesNotExist, ValidationError):
 			raise BadRequest(_("Invalid client_id."))
 
-		try:
-			self.client = service_account.openid_client
-		except Client.DoesNotExist:
+		if not self.client.oauth_app:
 			raise BadRequest(_("Invalid client_id."))
 
 		self.redirect_uri = self['redirect_uri']
 
-		if self.redirect_uri and self.redirect_uri not in getattr(self.client, self.redirect_uri_set):
+		if self.redirect_uri and self.redirect_uri not in getattr(self.client, 'oauth_' + self.redirect_uri_set):
 			raise BadRequest(_("Invalid redirect_uri."))
 
 	@property

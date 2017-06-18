@@ -25,4 +25,4 @@ def makeIDToken(request, client, user, scope, nonce, at=None, c=None):
 	if c:
 		id['c_hash'] = oidc_hash(issuer.hash, c)
 
-	return issuer.issue_token(id, client.user.id, int(os.environ.get('EXPIRE_IDTOKEN', 2*60)))
+	return issuer.issue_token(id, client.id, int(os.environ.get('EXPIRE_IDTOKEN', 2*60)))

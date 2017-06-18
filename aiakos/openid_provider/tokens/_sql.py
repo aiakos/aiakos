@@ -5,8 +5,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from ..models.client import Client
-
 
 class SQLBaseModelManager(models.Manager):
 	def get_queryset(self):
@@ -18,7 +16,7 @@ class SQLBaseModel(models.Model):
 
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
-	client = models.ForeignKey(Client)
+	client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
 	expires_at = models.DateTimeField()
 	_scope = models.TextField(default='')
 

@@ -23,7 +23,7 @@ def _auth_code(request):
 	except ValueError:
 		raise invalid_grant()
 
-	if redirect_uri not in code.client.redirect_uris:
+	if redirect_uri not in code.client.oauth_redirect_uris:
 		raise invalid_grant()
 
 	return code
@@ -59,13 +59,8 @@ class TokenView(View):
 		else:
 			raise unsupported_grant_type()
 
-		if code.client.confidential:
-			try:
-				client = request.user.openid_client
-			except AttributeError:
-				raise invalid_grant()
-
-			if client != code.client:
+		if code.client.oauth_auth_method != 'none':
+			if request.user != code.client:
 				raise invalid_grant()
 
 		# TODO check consent (so we won't generate new tokens after revocation)
@@ -73,7 +68,7 @@ class TokenView(View):
 
 		response = {}
 
-		token_type, access_token, expires_in = makeAccessToken(client=code.client, user=code.user, scope=code.scope, confidential=code.client.confidential)
+		token_type, access_token, expires_in = makeAccessToken(client=code.client, user=code.user, scope=code.scope, confidential=code.client.oauth_auth_method != 'none')
 		response['token_type'] = token_type
 		response['access_token'] = access_token
 		response['expires_in'] = expires_in
@@ -84,7 +79,7 @@ class TokenView(View):
 		else:
 			id_token = None
 
-		if 'offline_access' in code.scope and code.client.confidential:
+		if 'offline_access' in code.scope and code.client.oauth_auth_method != 'none':
 			refresh_token = makeRefreshToken(client=code.client, user=code.user, scope=code.scope)
 			response['refresh_token'] = refresh_token
 

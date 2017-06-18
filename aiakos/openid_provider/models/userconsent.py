@@ -2,17 +2,17 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from .client import Client
+from .app import App
 
 
 class UserConsent(models.Model):
 	class Meta:
 		verbose_name = _("user consent")
 		verbose_name_plural = _("user consents")
-		unique_together = ('user', 'client')
+		unique_together = ('user', 'app')
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
-	client = models.ForeignKey(Client, verbose_name=_("client"))
+	app = models.ForeignKey(App, verbose_name=_("app"))
 	_scope = models.TextField(default='', verbose_name=_("scopes"))
 
 	date_given = models.DateTimeField(verbose_name=_("date given"), auto_now_add=True)
@@ -27,4 +27,4 @@ class UserConsent(models.Model):
 		self._scope = ' '.join(value)
 
 	def __str__(self):
-		return '{0} - {1}'.format(self.client, self.user)
+		return '{0} - {1}'.format(self.app, self.user)

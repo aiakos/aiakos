@@ -43,7 +43,7 @@ class ConsentView(TemplateView):
 		self.req_scope = set(self.auth_request['scope'].split(' '))
 		self.req_scope &= set(['openid']) | set(SCOPES.keys())
 
-		self.req_untrusted_scope = self.req_scope - self.auth_request.client.trusted_scopes
+		self.req_untrusted_scope = self.req_scope - self.auth_request.client.oauth_app.trusted_scopes
 
 		self.prompt = self.auth_request['prompt'].split(' ')
 
@@ -58,7 +58,7 @@ class ConsentView(TemplateView):
 
 			if self.req_untrusted_scope:
 				try:
-					uc = UserConsent.objects.get(user=self.user, client=self.auth_request.client)
+					uc = UserConsent.objects.get(user=self.user, app=self.auth_request.client.oauth_app)
 					if not self.req_untrusted_scope.issubset(uc.scope):
 						raise consent_required()
 				except UserConsent.DoesNotExist:
@@ -76,21 +76,21 @@ class ConsentView(TemplateView):
 		if '_allow' not in request.POST:
 			return self.auth_request.deny(access_denied())
 
-		if self.auth_request.client.confidential:
-			uc, created = UserConsent.objects.get_or_create(user=self.user, client=self.auth_request.client)
+		if self.auth_request.client.oauth_auth_method != 'none':
+			uc, created = UserConsent.objects.get_or_create(user=self.user, app=self.auth_request.client.oauth_app)
 		else:
 			uc = UserConsent(user=self.user, client=self.auth_request.client)
 
 		# TODO add a way to turn on and off single permissions
 		uc.scope |= self.req_untrusted_scope
 
-		if self.auth_request.client.confidential:
+		if self.auth_request.client.oauth_auth_method != 'none':
 			uc.save()
 
 		return self.go(uc)
 
 	def go(self, uc=None):
-		scope = self.auth_request.client.trusted_scopes
+		scope = self.auth_request.client.oauth_app.trusted_scopes
 		if uc:
 			scope |= uc.scope
 		scope &= self.req_scope

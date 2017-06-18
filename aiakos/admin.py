@@ -8,17 +8,11 @@ from .models import User
 from .openid_provider.models import *
 
 
-class ClientInline(admin.StackedInline):
-	model = Client
-	extra = 0
-	verbose_name = _("OpenID Client settings")
-	verbose_name_plural = _("OpenID Client settings")
-
 class ExternalIdentityInline(admin.TabularInline):
 	model = ExternalIdentity
 	extra = 0
 
 class ExtendedUserAdmin(UserAdmin):
-	inlines = UserAdmin.inlines + [ClientInline, ExternalIdentityInline]
+	inlines = UserAdmin.inlines + [ExternalIdentityInline]
 
 admin.site.register(User, ExtendedUserAdmin)
