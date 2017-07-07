@@ -61,6 +61,9 @@ class DjangoBackend(ModelBackend):
 			except (User.DoesNotExist, ValidationError):
 				pass
 
+		if not user:
+			user = User()
+
 		if check_password(user, password):
-			if user and self.user_can_authenticate(user):
+			if user.is_authenticated and self.user_can_authenticate(user):
 				return user

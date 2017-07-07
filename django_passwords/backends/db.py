@@ -7,11 +7,7 @@ class Backend:
 		pass
 
 	def check_password(self, user, password):
-		if user and user.has_usable_password():
-			return user.check_password(password)
-		else:
-			User().check_password(password)
-			return None
+		return user.check_password(password)
 
 	def set_password(self, user, password):
 		user.set_password(password)
