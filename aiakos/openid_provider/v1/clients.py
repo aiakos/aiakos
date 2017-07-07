@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 from django.utils.crypto import get_random_string
 
 from rest_framework import filters, serializers, viewsets
@@ -225,15 +226,17 @@ class ClientSerializer(serializers.Serializer):
 		return instance
 
 
-class OnlyOwnedFilter(filters.BaseFilterBackend):
+class OnlySelfAndOwnedFilter(filters.BaseFilterBackend):
 	def filter_queryset(self, request, queryset, view):
 		if hasattr(request.user, 'accounts'):
-			return queryset.filter(oauth_app__owner__in=request.user.accounts)
+			pks = [a.pk for a in request.user.accounts]
 		else:
-			return queryset.filter(oauth_app__owner=request.user)
+			pks = [request.user.pk]
+
+		return queryset.filter(Q(pk__in=pks) | Q(oauth_app__owner__pk__in=pks))
 
 
 class ClientViewSet(viewsets.ModelViewSet):
 	queryset = Client.objects.all()
-	filter_backends = (OnlyOwnedFilter,)
+	filter_backends = (OnlySelfAndOwnedFilter,)
 	serializer_class = ClientSerializer
