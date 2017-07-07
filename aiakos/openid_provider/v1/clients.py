@@ -198,9 +198,9 @@ class ClientSerializer(serializers.Serializer):
 	logo_uri = serializers.URLField(required = False, allow_blank = True)
 	tos_uri = serializers.URLField(required = False, allow_blank = True)
 	policy_uri = serializers.URLField(required = False, allow_blank = True)
-	contacts = serializers.ListField(serializers.CharField())
-	redirect_uris = serializers.ListField(serializers.CharField())
-	post_logout_redirect_uris = serializers.ListField(serializers.CharField())
+	contacts = serializers.ListSerializer(child = serializers.CharField(), required = False)
+	redirect_uris = serializers.ListSerializer(child = serializers.URLField(), required = False)
+	post_logout_redirect_uris = serializers.ListSerializer(child = serializers.URLField(), required = False)
 	application_type = serializers.ChoiceField(choices=Client.OAUTH_APPLICATION_TYPES, default = 'web', required = False)
 	token_endpoint_auth_method = serializers.ChoiceField(choices=Client.OAUTH_AUTH_METHODS, default = 'client_secret_basic', required = False)
 	software_id = serializers.CharField(required = False, allow_blank = True)
@@ -209,8 +209,8 @@ class ClientSerializer(serializers.Serializer):
 	owner = serializers.CharField(read_only=True)
 
 	# DRF hack - because list fields aren't displayed in forms
-	redirect_uri = serializers.CharField(write_only = True, required = False, allow_blank = True)
-	post_logout_redirect_uri = serializers.CharField(write_only = True, required = False, allow_blank = True)
+	redirect_uri = serializers.URLField(write_only = True, required = False, allow_blank = True)
+	post_logout_redirect_uri = serializers.URLField(write_only = True, required = False, allow_blank = True)
 
 	def create(self, validated_data):
 		owner = self.context['request'].user
