@@ -20,12 +20,12 @@ class IdentityProviderManager(models.Manager):
 class IdentityProvider(models.Model):
 	objects = IdentityProviderManager()
 
-	domain = models.CharField(max_length=200, verbose_name=_("domain"), help_text=_("Example: accounts.google.com; may include a path"), unique=True)
+	domain = models.CharField(max_length=150, verbose_name=_("domain"), help_text=_("Example: accounts.google.com; may include a path"), unique=True)
 
-	name = models.CharField(max_length=200, blank=True)
+	name = models.CharField(max_length=150, blank=True)
 
-	client_id = models.CharField(max_length=200, blank=True)
-	client_secret = models.CharField(max_length=200, blank=True)
+	client_id = models.CharField(max_length=150, blank=True)
+	client_secret = models.TextField(blank=True)
 
 	protocol = models.CharField(max_length=50, verbose_name=_("protocol"), choices=PROTOCOL_CHOICES, default='openid_connect', blank=True)
 	protocol_settings_yaml = models.TextField(blank=True, verbose_name=_("protocol-specific settings"), help_text=_("In YAML. Usually empty."))
