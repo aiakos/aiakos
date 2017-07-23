@@ -113,7 +113,7 @@ class ExternalIdentity(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
 	trusted = models.BooleanField(default=False)
 
-	sub = models.CharField(max_length=200)
+	sub = models.CharField(max_length=150)
 	provider = models.ForeignKey(IdentityProvider)
 
 	userinfo_yaml = models.TextField(verbose_name="User information", blank=True)

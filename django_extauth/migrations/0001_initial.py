@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('trusted', models.BooleanField(default=False)),
-                ('sub', models.CharField(max_length=200)),
+                ('sub', models.CharField(max_length=150)),
                 ('userinfo_yaml', models.TextField(blank=True, verbose_name='User information')),
             ],
             options={
