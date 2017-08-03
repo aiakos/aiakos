@@ -108,7 +108,7 @@ class AuthRequest:
 
 		self.redirect_uri = self['redirect_uri']
 
-		if self.redirect_uri and self.redirect_uri not in getattr(self.client, 'oauth_' + self.redirect_uri_set):
+		if self.redirect_uri and (not self.redirect_uri_set or self.redirect_uri not in getattr(self.client, 'oauth_' + self.redirect_uri_set)):
 			raise BadRequest(_("Invalid redirect_uri."))
 
 	@property

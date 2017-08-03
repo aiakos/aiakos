@@ -1,3 +1,4 @@
+from .account_settings import AccountSettingsView
 from .authorization import AuthorizationView
 from .configuration import ConfigurationView
 from .consent import ConsentView
