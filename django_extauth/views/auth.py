@@ -201,13 +201,14 @@ class AuthView(TemplateView):
 		if not form.is_valid():
 			errors = json.loads(form.errors.as_json())
 
-			e_class = invalid_request
+			ex = invalid_request(errors)
 			if '__all__' in errors:
 				for e in errors['__all__']:
 					if e['code'] == 'invalid_login':
-						e_class = invalid_grant
+						ex = invalid_grant(errors)
+						ex.status_code = 403
 
-			raise e_class(errors)
+			raise ex
 
 		form_resp = form.process(request)
 
