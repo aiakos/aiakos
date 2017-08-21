@@ -1,7 +1,7 @@
 import os
 from base64 import urlsafe_b64encode
 
-from ..issuer import issuer
+from .. import jwt
 from ..userinfo import makeUserInfo
 
 
@@ -20,9 +20,13 @@ def makeIDToken(request, client, user, scope, nonce, at=None, c=None):
 		id['nonce'] = nonce
 
 	if at:
-		id['at_hash'] = oidc_hash(issuer.hash, at)
+		id['at_hash'] = oidc_hash(jwt.myself.signing_hash, at)
 
 	if c:
-		id['c_hash'] = oidc_hash(issuer.hash, c)
+		id['c_hash'] = oidc_hash(jwt.myself.signing_hash, c)
 
-	return issuer.issue_token(id, client.id, int(os.environ.get('EXPIRE_IDTOKEN', 2*60)))
+	return jwt.encode(jwt.myself, [client], id, int(os.environ.get('EXPIRE_IDTOKEN', 2*60)))
+
+
+def expandIDToken(token):
+	return jwt.decode(None, [jwt.myself], token)

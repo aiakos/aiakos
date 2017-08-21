@@ -2,7 +2,7 @@ import os
 
 from django.core.management.base import BaseCommand
 
-from Cryptodome.PublicKey import RSA
+from Crypto.PublicKey import RSA
 
 from ...models import RSAKey
 

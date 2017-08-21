@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic import View
 
-from ..issuer import issuer
+from .. import jwt
 from ..scopes import SCOPES
 
 
@@ -15,7 +15,7 @@ class ConfigurationView(View):
 
 	def get(self, request):
 		config = dict(
-			issuer = issuer.url,
+			issuer = jwt.myself.id,
 
 			authorization_endpoint = request.build_absolute_uri(reverse('openid_provider:authorization')),
 			token_endpoint = request.build_absolute_uri(reverse('openid_provider:token')),

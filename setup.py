@@ -23,7 +23,6 @@ setup(
 		"dj12",
 		"django-crispy-forms",
 		"google-auth",
-		"pyjwkest",
 		"PyYAML",
 		"raven",
 		"whitenoise",
