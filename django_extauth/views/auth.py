@@ -217,8 +217,8 @@ class AuthView(TemplateView):
 		else:
 			resp['message'] = form_resp
 
-		if not request.user.is_anonymous:
-			resp['redirect'] = get_success_url(self.request)
+		if hasattr(form, 'user') and form.user:
+			resp['redirect'] = get_success_url(self.request).replace('%7Bid%7D', str(form.user.pk))
 
 		return resp
 
