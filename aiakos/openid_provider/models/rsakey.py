@@ -21,6 +21,9 @@ class RSAKey(models.Model):
 	@property
 	def public_jwk(self):
 		jwk = JWK(self.key, 'RS256').public_key().to_dict()
+		for k, v in jwk.items():
+			if isinstance(v, bytes):
+				jwk[k] = v.decode('ascii')
 		jwk['use'] = 'sig'
 		jwk['kid'] = self.kid
 		return jwk
