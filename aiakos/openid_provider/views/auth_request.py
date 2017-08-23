@@ -89,13 +89,13 @@ class AuthRequest:
 
 		client_id = self['client_id']
 
-		aud = self.id_hint['aud']
-		if isinstance(aud, list):
-			if len(aud) > 1:
-				raise BadRequest(_("Invalid id_token_hint."))
-			aud = aud[0]
-
 		if self.id_hint:
+			aud = self.id_hint['aud']
+			if isinstance(aud, list):
+				if len(aud) > 1:
+					raise BadRequest(_("Invalid id_token_hint."))
+				aud = aud[0]
+
 			if client_id:
 				if aud != client_id:
 					raise BadRequest(_("Invalid id_token_hint."))
