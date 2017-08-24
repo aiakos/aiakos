@@ -32,11 +32,10 @@ The recommended way to deploy aiakos is to use the official docker container - [
 ### Deployment configuration
 Aiakos is using [dj12](https://gitlab.com/aiakos/dj12) for twelve-factor configuration support.
 
-See [dj12 usage](https://gitlab.com/aiakos/dj12#usage) for a list of supported options. Note that ALLOWED_HOSTS is not required, as it's generated from BASE_URL. Also, we are not using cache right now.
+See [dj12 usage](https://gitlab.com/aiakos/dj12#usage) for a list of supported options. Note that we are not using cache right now.
 
 #### Aiakos-specific options
 
-* BASE_URL - base URL at which Aiakos will be available; you should use https scheme!
 * HOME_URL (optional) - URL to redirect to when a logged in user accesses /; by default he'll get redirected to the app list view
 * BOOTSTRAP_THEME_URL (optional) - Bootstrap theme to use, you can find many free ones at [bootswatch.com](https://bootswatch.com/)
 * BOOTSTRAP_THEME_INTEGRITY (optional) - Integrity checksum of the Bootstrap theme

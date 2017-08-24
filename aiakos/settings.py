@@ -104,19 +104,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 # Configuration
-## TODO Move as many of these as possible to dj12.
-
-BASE_URL = os.environ.get('BASE_URL', '')
-
-if BASE_URL:
-	base_url = urlsplit(BASE_URL)
-
-	os.environ.setdefault('ALLOWED_HOSTS', base_url.hostname)
-
-	if base_url.scheme == 'https':
-		SECURE_SSL_REDIRECT = True
-
-STATIC_URL = BASE_URL + 'static/'
 
 HOME_URL = os.getenv('HOME_URL', '/auth/settings/')
 
@@ -129,3 +116,5 @@ if _MEDIA_PROVIDER:
 INSECURE_END_SESSION_ENDPOINT = os.getenv('INSECURE_END_SESSION_ENDPOINT') in ['1', 'on', 'yes', 'true']
 
 from dj12.config import *  # isort:skip
+
+STATIC_URL = BASE_URL + 'static/'

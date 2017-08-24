@@ -20,7 +20,7 @@ setup(
 		"openid-connect",
 		"gevent",
 		"gunicorn",
-		"dj12",
+		"dj12>=0.2",
 		"django-crispy-forms",
 		"google-auth",
 		"PyYAML",
