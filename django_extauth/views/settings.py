@@ -65,7 +65,7 @@ class SettingsView(TemplateView):
 
 	@property
 	def url(self):
-		return reverse('extauth:settings', self.user.id)
+		return reverse('extauth:settings', args=[self.user.id])
 
 	def get(self, request):
 		if not request.user.has_perm('django_extauth:view_user_settings', self.user):
