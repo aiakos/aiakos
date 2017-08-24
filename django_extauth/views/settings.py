@@ -101,11 +101,11 @@ class SettingsView(TemplateView):
 				update_session_auth_hash(request, request.user)
 				messages.success(request, _("Your password has been changed."))
 
-		return redirect(reverse('extauth:settings'))
+		return redirect(self.url)
 
 	@method_decorator(login_required)
 	def oauth_callback(self, request, state):
 		if request.external_identity:
 			associate(request)
 
-		return redirect(reverse('extauth:settings'))
+		return redirect(self.url)
