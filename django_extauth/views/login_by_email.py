@@ -6,4 +6,4 @@ from .auth import AuthView
 
 @method_decorator(in_url_authentication, name='dispatch')
 class LoginByEmail(AuthView):
-	pass
+	redirect_authenticated_user = True
