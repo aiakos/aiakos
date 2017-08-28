@@ -44,7 +44,7 @@ class AuthRegisterForm(forms.Form):
 			if ei.trusted:
 				send_mail(ei.email, 'registration/email/welcome-back', {
 					'user': ei.user,
-					'reset_password': password_reset_link(site, ei.email),
+					'reset_password': password_reset_link(site, ei.email, ei.user),
 				}, request=request)
 			else:
 				send_mail(ei.email, 'registration/email/welcome-back', {
