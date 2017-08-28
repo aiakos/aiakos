@@ -20,6 +20,9 @@ class ClientManager(models.Manager):
 		if owner:
 			c.oauth_app.owner_id = owner.pk
 
+		if owner.oauth_app:
+			c.oauth_app.trusted_scopes = owner.oauth_app.trusted_scopes & getattr(c.oauth_app, 'new_trusted_scope', set())
+
 		if c.oauth_auth_method.startswith('client_secret_'):
 			c.client_secret = get_random_string(32)
 			c.set_password(c.client_secret)
@@ -158,7 +161,17 @@ class Client(Account):
 	def software_version(self, val):
 		self.oauth_software_version = val
 
+	@property
+	def trusted_scope(self):
+		return self.oauth_app.trusted_scopes
+
+	@trusted_scope.setter
+	def trusted_scope(self, val):
+		self.oauth_app.new_trusted_scope = set(val)
+
 	def save(self):
+		self.oauth_app.trusted_scopes = self.oauth_app.trusted_scopes & getattr(self.oauth_app, 'new_trusted_scope', set())
+
 		self.oauth_app.save()
 		self.oauth_app = self.oauth_app
 		super().save()
@@ -205,6 +218,7 @@ class ClientSerializer(serializers.Serializer):
 	token_endpoint_auth_method = serializers.ChoiceField(choices=Client.OAUTH_AUTH_METHODS, default = 'client_secret_basic', required = False)
 	software_id = serializers.CharField(required = False, allow_blank = True)
 	software_version = serializers.CharField(required = False, allow_blank = True)
+	trusted_scope = serializers.ListSerializer(child = serializers.CharField(), required = False)
 
 	owner = serializers.CharField(read_only=True)
 
