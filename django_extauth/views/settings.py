@@ -46,7 +46,7 @@ class SettingsView(TemplateView):
 		try:
 			return self._set_password_form
 		except:
-			self._set_password_form = SetPasswordForm(self.request.user)
+			self._set_password_form = SetPasswordForm(self.user)
 			return self._set_password_form
 
 	def get_context_data(self, **kwargs):
@@ -82,23 +82,24 @@ class SettingsView(TemplateView):
 			return authorize(provider, request, 'associate')
 
 		if 'disconnect' in request.POST:
-			ei = request.user.externalidentity_set.get(pk=int(request.POST['disconnect']))
+			ei = self.user.externalidentity_set.get(pk=int(request.POST['disconnect']))
 			ei.delete()
 
 		if 'trust' in request.POST:
-			ei = request.user.externalidentity_set.get(pk=int(request.POST['trust']))
+			ei = self.user.externalidentity_set.get(pk=int(request.POST['trust']))
 			ei.trusted = True
 			ei.save()
 
 		if 'untrust' in request.POST:
-			ei = request.user.externalidentity_set.get(pk=int(request.POST['untrust']))
+			ei = self.user.externalidentity_set.get(pk=int(request.POST['untrust']))
 			ei.trusted = False
 			ei.save()
 
 		if 'set-password' in request.POST:
-			self._set_password_form = SetPasswordForm(request.user, request.POST)
+			self._set_password_form = SetPasswordForm(self.user, request.POST)
 			if self._set_password_form.is_valid():
-				update_session_auth_hash(request, request.user)
+				self._set_password_form.process()
+				update_session_auth_hash(request, self.user)
 				messages.success(request, _("Your password has been changed."))
 
 		return redirect(self.url)
