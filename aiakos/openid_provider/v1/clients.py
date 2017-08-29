@@ -254,3 +254,8 @@ class ClientViewSet(viewsets.ModelViewSet):
 	queryset = Client.objects.all()
 	filter_backends = (OnlySelfAndOwnedFilter,)
 	serializer_class = ClientSerializer
+
+	def filter_queryset(self, queryset):
+		if self.action == 'retrieve':
+			return queryset
+		return super().filter_queryset(queryset)
