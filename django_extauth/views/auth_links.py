@@ -9,7 +9,7 @@ from ..token import auth_token
 def password_reset_link(site, email, user):
 	token = auth_token(email)
 	return 'https://' + site.domain + reverse('extauth:login-by-email', args=[token]) + '?' + urlencode({
-		REDIRECT_FIELD_NAME: reverse('extauth:settings', args=[user.id])
+		REDIRECT_FIELD_NAME: reverse('extauth:settings', args=[user.id]) + "#reset",
 	})
 
 def finish_registration_by_email_link(site, email, user):
