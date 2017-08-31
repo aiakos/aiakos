@@ -47,9 +47,6 @@ class TokenView(View):
 			if request.user != code.client:
 				raise invalid_grant()
 
-		# TODO check consent (so we won't generate new tokens after revocation)
-		# raise invalid_grant()
-
 		response = {}
 
 		token_type, access_token, expires_in = makeAccessToken(client=code.client, user=code.user, scope=code.scope, confidential=code.client.oauth_auth_method != 'none')
