@@ -28,19 +28,6 @@ def _auth_code(request):
 
 	return code
 
-def _auth_refresh_token(request):
-	try:
-		rt = request.POST['refresh_token']
-	except KeyError:
-		raise invalid_request()
-
-	try:
-		rt = expandRefeshToken(rt)
-	except ValueError:
-		raise invalid_grant()
-
-	return rt
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(oauth_error_response(logger), name='dispatch')
@@ -53,9 +40,6 @@ class TokenView(View):
 
 		if grant_type == 'authorization_code':
 			code = _auth_code(request)
-		elif grant_type == 'refresh_token':
-			code = _auth_refresh_token(request)
-			code.nonce = ''
 		else:
 			raise unsupported_grant_type()
 
@@ -78,10 +62,6 @@ class TokenView(View):
 			response['id_token'] = id_token
 		else:
 			id_token = None
-
-		if 'offline_access' in code.scope and code.client.oauth_auth_method != 'none':
-			refresh_token = makeRefreshToken(client=code.client, user=code.user, scope=code.scope)
-			response['refresh_token'] = refresh_token
 
 		response = JsonResponse(response)
 		response['Cache-Control'] = 'no-store'
