@@ -31,6 +31,7 @@ setup(
 		'djangorestframework',
 		'django-filter',
 		'markdown',
+		'python-jose>=1.4.0',
 	],
 
 	extras_require={
