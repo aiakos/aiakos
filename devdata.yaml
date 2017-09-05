@@ -2,7 +2,8 @@
   pk: '00000000-0000-0000-0000-000000000000'
   fields:
     username: root
-    name: The Administrator
+    given_name: The
+    family_name: Administrator
     password: pbkdf2_sha256$36000$yiaCSUyKhHxt$eo1u1o/2CdRlThWrYXxn0ILeDrKBjoVBn0yh1DUpwVM= # root
     is_superuser: true
     is_staff: true
