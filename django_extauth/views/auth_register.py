@@ -18,9 +18,17 @@ class AuthRegisterForm(forms.Form):
 		help_text=password_validation.password_validators_help_text_html(),
 	)
 
+	given_name = forms.CharField(label=_("Given name"), required=False)
+	family_name = forms.CharField(label=_("Family name"), required=False)
+
 	def process(self, request):
 		email = self.cleaned_data['email']
 		password = self.cleaned_data['password']
+
+		profile_data = dict(
+			given_name = self.cleaned_data['given_name'],
+			family_name = self.cleaned_data['family_name'],
+		)
 
 		site = get_current_site(request)
 
@@ -30,6 +38,8 @@ class AuthRegisterForm(forms.Form):
 			username, domain = email.split('@', 1)
 			user = create_user(username)
 			user.set_password(password)
+			for k, v in profile_data.items():
+				setattr(user, k, v)
 			user.save()
 
 			send_mail(email, 'registration/email/welcome', {
