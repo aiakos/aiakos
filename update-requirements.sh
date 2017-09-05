@@ -1,5 +1,5 @@
 set -e
-virtualenv3 .upenv
+python3 -m venv .upenv
 . .upenv/bin/activate
 pip install .[MySQL,PostgreSQL]
 pip uninstall --yes aiakos
