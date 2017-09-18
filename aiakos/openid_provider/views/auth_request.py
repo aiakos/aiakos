@@ -38,7 +38,7 @@ def _load_data(request):
 			return
 
 	try:
-		return id, json.loads(request.COOKIES['auth_request_' + id])
+		return id, json.loads(request.session['auth_requests'][id])
 	except Exception as e:
 		log.warning(e)
 

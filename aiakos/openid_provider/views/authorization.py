@@ -48,7 +48,7 @@ class AuthorizationView(View):
 			id = uuid4().hex
 
 			res = redirect(reverse('openid_provider:select-account') + '?request=' + id)
-			res.set_cookie('auth_request_' + id, data)
+			request.session.setdefault('auth_requests', {})[id] = data
 			return res
 
 		except OAuthError as e:
