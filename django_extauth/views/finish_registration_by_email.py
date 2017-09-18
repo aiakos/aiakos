@@ -134,7 +134,7 @@ class FinishRegistrationByEmail(TemplateView):
 			if '__all__' in errors:
 				for e in errors['__all__']:
 					if e['code'] == 'invalid_login':
-						e_class = invalid_grant
+						e_class = access_denied
 
 			raise e_class(errors)
 
