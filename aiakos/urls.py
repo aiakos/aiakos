@@ -20,12 +20,14 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView, TemplateView
 
+from django_extauth import v1 as auth_v1
 from rest_framework import routers
 
 from .openid_provider import v1 as oauth_v1
 
 v1 = routers.DefaultRouter()
 v1.register(r'clients', oauth_v1.ClientViewSet)
+v1.register(r'accounts', auth_v1.AccountViewSet, base_name='account')
 
 urlpatterns = [
 	url(r'^v1/', include(v1.urls)),

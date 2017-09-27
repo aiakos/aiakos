@@ -1,13 +1,30 @@
 from django.utils.translation import gettext_lazy as _
 
+from .models import ExternalIdentity
+
 
 class UserMixin:
+
+	@property
+	def emails(self):
+		return [ei.email for ei in self.externalidentity_set.filter(provider__protocol="")]
+
+	@emails.setter
+	def emails(self, val):
+		for ei in self.external_identities:
+			if not ei.email in val:
+				ei.delete()
+
+		eis = [ExternalIdentity.objects.forced_get(email=email) for email in val]
+		for ei in eis:
+			ei.user = self
+			ei.save()
 
 	@property
 	def email(self):
 		# TODO Provide a way to choose the main email address.
 		try:
-			return self.externalidentity_set.filter(provider__protocol="")[0].email
+			return self.emails[0]
 		except IndexError:
 			return ''
 
