@@ -40,5 +40,6 @@ services:
     - SECRET_KEY=x
     - BASE_URL=http://localhost.aiakosauth.io:2121/
     - INSECURE_END_SESSION_ENDPOINT
+    - DEBUG
     ports:
     - "2121:80"
