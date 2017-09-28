@@ -21,6 +21,8 @@ class AuthRegisterForm(forms.Form):
 	given_name = forms.CharField(label=_("Given name"), required=False)
 	family_name = forms.CharField(label=_("Family name"), required=False)
 
+	state = forms.CharField(widget=forms.HiddenInput, required=False)
+
 	def process(self, request):
 		email = self.cleaned_data['email']
 		password = self.cleaned_data['password']
@@ -31,6 +33,10 @@ class AuthRegisterForm(forms.Form):
 		)
 
 		site = get_current_site(request)
+
+		query = {}
+		if self.cleaned_data['state']:
+			query['state'] = self.cleaned_data['state']
 
 		try:
 			ei = ExternalIdentity.objects.get(email=email)
@@ -45,7 +51,7 @@ class AuthRegisterForm(forms.Form):
 			send_mail(email, 'registration/email/welcome', {
 				'user': user,
 				'email': email,
-				'confirm_email': finish_registration_by_email_link(site, email, user),
+				'confirm_email': finish_registration_by_email_link(site, email, user, **query),
 			}, request=request)
 			# Note: We can't log in here, as we can't log in in the 'else' case,
 			# and it would tell the attacker if this e-mail is in the database
@@ -54,7 +60,7 @@ class AuthRegisterForm(forms.Form):
 			if ei.trusted:
 				send_mail(ei.email, 'registration/email/welcome-back', {
 					'user': ei.user,
-					'reset_password': password_reset_link(site, ei.email, ei.user),
+					'reset_password': password_reset_link(site, ei.email, ei.user, **query),
 				}, request=request)
 			else:
 				send_mail(ei.email, 'registration/email/welcome-back', {
