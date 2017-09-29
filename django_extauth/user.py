@@ -18,6 +18,7 @@ class UserMixin:
 		eis = [ExternalIdentity.objects.forced_get(email=email) for email in val]
 		for ei in eis:
 			ei.user = self
+			ei.trusted = True
 			ei.save()
 
 	@property
