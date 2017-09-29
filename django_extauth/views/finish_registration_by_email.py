@@ -83,12 +83,14 @@ class FinishRegistrationByEmail(TemplateView):
 				messages.success(request, _("Your email addres has been confirmed before."))
 				return redirect(settings.HOME_URL)
 			else:
-				raise SuspiciousOperation()
+				messages.error(request, _("Link expired."))
+				return redirect(settings.HOME_URL)
 
 		user = User.objects.get(id=request.token["user_id"])
 		if user.last_login:
 			# You can't finish registration after logging in.
-			raise SuspiciousOperation()
+			messages.error(request, _("Link expired."))
+			return redirect(settings.HOME_URL)
 
 		return super().dispatch(request, user)
 

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -35,6 +36,10 @@ def authenticate_token(request, token):
 
 def in_url_authentication(func):
 	def wrapper(request, auth_token, **kwargs):
-		authenticate_token(request, auth_token)
+		try:
+			authenticate_token(request, auth_token)
+		except jwt.ExpiredSignatureError:
+			messages.error(request, _("Link expired."))
+			return redirect(settings.HOME_URL)
 		return func(request, **kwargs)
 	return wrapper
