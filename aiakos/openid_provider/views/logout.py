@@ -19,6 +19,7 @@ class LogoutRequest(AuthRequest):
 class LogoutView(View):
 
 	def get(self, request):
+		client_id = request.GET.get('client_id')  # See https://bitbucket.org/openid/connect/issues/914/session-5-missing-client_id-parameter
 		id_token_hint = request.GET.get('id_token_hint')
 		post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri')
 
@@ -26,6 +27,7 @@ class LogoutView(View):
 			req = LogoutRequest(request, dict(
 				response_type = '',
 				response_mode = 'query',
+				client_id = client_id,
 				id_token_hint = id_token_hint,
 				redirect_uri = post_logout_redirect_uri,
 				state = request.GET.get('state'),
