@@ -35,20 +35,14 @@ class LogoutView(View):
 		else:
 			req = None
 
-		if not req or not req.id_hint_valid:
-			# TODO show confirmation and return
-			if not req or not getattr(settings, 'INSECURE_END_SESSION_ENDPOINT', False):
-				raise NotImplementedError('Logout confirmation view is not yet implemented')
-
-		for acc in request.user.accounts:
-			if req.id_hint['sub'] == str(acc.id):
-				logout(request)
-
-		if req and req.redirect_uri:
-			return req.respond({})
-
 		if request.user.is_authenticated:
-			# will happen when we have id_token_hint for another user, and no redirect_uri.
-			return redirect(settings.LOGIN_REDIRECT_URL)
-		else:
+			if not req or not req.id_hint_valid or req.id_hint['sub'] not in (str(acc.id) for acc in request.user.accounts):
+				if not getattr(settings, 'INSECURE_END_SESSION_ENDPOINT', False):
+					raise NotImplementedError('Logout confirmation view is not yet implemented')
+
+			logout(request)
+
+		if not req or not req.redirect_uri:
 			return redirect(settings.LOGOUT_REDIRECT_URL)
+
+		return req.respond({})
