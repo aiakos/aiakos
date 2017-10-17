@@ -23,10 +23,16 @@ class OriginMiddleware:
 	def __call__(self, request):
 
 		if request.headers.cookie and request.method != 'GET':
-			if not request.headers.origin:
+			origin = request.headers.origin
+			if not origin:
+				referer = request.headers.referer
+				if referer:
+					origin = urlunsplit(urlsplit(referer)._replace(path='', query=''))
+
+			if not origin:
 				raise MissingOrigin()
 
-			if request.headers.origin not in ALLOWED_ORIGINS:
+			if origin not in ALLOWED_ORIGINS:
 				raise DisallowedOrigin()
 
 		return self.get_response(request)
