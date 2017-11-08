@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django_sendmail import send_mail
 
 from ..models import ExternalIdentity, create_user
-from .auth_links import finish_registration_by_email_link, password_reset_link
+from .auth_links import finish_registration_by_email_link, password_reset_link, login_link
 
 
 class AuthRegisterForm(forms.Form):
@@ -61,6 +61,7 @@ class AuthRegisterForm(forms.Form):
 				send_mail(ei.email, 'registration/email/welcome-back', {
 					'user': ei.user,
 					'reset_password': password_reset_link(site, ei.email, ei.user, **query),
+					'log_in': login_link(ei.email),
 				}, request=request)
 			else:
 				send_mail(ei.email, 'registration/email/welcome-back', {
