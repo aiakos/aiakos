@@ -1,6 +1,7 @@
 import json
 from base64 import b64decode, b64encode
 
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views import View
 
