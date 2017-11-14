@@ -28,7 +28,7 @@ class FlowMiddleware:
 		self.get_response = get_response
 
 	def __call__(self, request):
-		flows = request.session.setdefault('flows', {})
+		flows = request.session.get('flows', {})
 
 		initial_flow_id = None
 		try:
@@ -42,18 +42,19 @@ class FlowMiddleware:
 		resp = self.get_response(request)
 
 		# It's possible that session was flushed in get_response.
-		flows = request.session.setdefault('flows', {})
+		flows = request.session.get('flows', {})
 
 		if initial_flow_id:
 			try:
 				del flows[initial_flow_id]
 			except KeyError:
 				pass
-			request.session.modified = True
+			else:
+				request.session['flows'] = flows
 
 		if request.flow:
 			flows[request.flow.id] = json.dumps(request.flow.serialize())
-			request.session.modified = True
+			request.session['flows'] = flows
 
 			if 'Location' in resp:
 				if '?' in resp['Location']:
