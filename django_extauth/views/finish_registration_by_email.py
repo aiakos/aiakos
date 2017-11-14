@@ -79,7 +79,7 @@ class FinishRegistrationByEmail(TemplateView):
 			raise Http404
 
 		if ei.exists:
-			if request.user == ei.user or request.token["user_id"] == ei.user.id:
+			if ei.user in request.user.accounts or request.token["user_id"] == ei.user.id:
 				messages.success(request, _("Your email addres has been confirmed before."))
 				return redirect(settings.HOME_URL)
 			else:
