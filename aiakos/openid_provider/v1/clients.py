@@ -199,10 +199,15 @@ class Client(Account):
 		self.oauth_post_logout_redirect_uris = [val]
 
 
+class TimestampField(serializers.Field):
+	def to_representation(self, value):
+		return value.timestamp()
+
+
 class ClientSerializer(serializers.Serializer):
 	registration_client_uri = serializers.HyperlinkedIdentityField(read_only = True, view_name = 'client-detail')
 	client_id = serializers.CharField(read_only = True)
-	client_id_issued_at = serializers.DateTimeField(read_only = True)
+	client_id_issued_at = TimestampField(read_only = True)
 	client_secret = serializers.CharField(read_only = True)
 	client_secret_expires_at = serializers.IntegerField(read_only = True)
 	client_name = serializers.CharField(required = False, allow_blank = True)
