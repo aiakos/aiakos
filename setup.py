@@ -32,6 +32,7 @@ setup(
 		'django-filter',
 		'markdown',
 		'python-jose>=1.4.0',
+		'cached_property',
 	],
 
 	extras_require={

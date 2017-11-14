@@ -29,17 +29,25 @@ def encode(myself, audience, payload, expires_in):
 def decode(myself, issuers, payload):
 	# TODO support multiple issuers
 	issuer = issuers[0]
-	return jwt.decode(
-		payload,
-		issuer.public_jwks,
-		algorithms = ['RS256'],
-		audience = str(myself.id),
-		issuer = str(issuer.id),
-		options = dict(
-			verify_at_hash = False,
-			verify_aud = myself is not None,
-		),
-	)
+	try:
+		return jwt.decode(
+			payload,
+			issuer.public_jwks,
+			algorithms = ['RS256'],
+			audience = str(myself.id) if myself is not None else None,
+			issuer = str(issuer.id),
+			options = dict(
+				verify_at_hash = False,
+				verify_aud = myself is not None,
+			),
+		)
+	except jwt.JWTError as e:
+		try:
+			e.payload = jwt.get_unverified_claims(payload)
+		except jwt.JWTError:
+			pass
+
+		raise
 
 
 class Myself:

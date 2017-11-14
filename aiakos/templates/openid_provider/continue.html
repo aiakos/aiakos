@@ -1,0 +1,14 @@
+{% extends 'narrow.html' %}
+{% load i18n staticfiles %}
+
+{% block content %}
+
+{% with appname=flow.auth_request.client.oauth_app.name %}
+	<h2>{% blocktrans %}Continue to <i>{{appname}}</i>{% endblocktrans %}</h2>
+	<p class="lead">{% blocktrans %}Do you want to proceed to the <i>{{appname}}</i> application?{% endblocktrans %}</p>
+	<form method="post">
+		<button type="submit" class="btn btn-primary btn-block btn-lg">{% blocktrans %}Continue to {{appname}}{% endblocktrans %}</button>
+	</form>
+{% endwith %}
+
+{% endblock %}

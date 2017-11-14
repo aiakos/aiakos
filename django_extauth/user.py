@@ -1,9 +1,14 @@
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from .models import ExternalIdentity
 
 
 class UserMixin:
+
+	@property
+	def url(self):
+		return reverse('extauth:account-home', args=[self.id])
 
 	@property
 	def emails(self):

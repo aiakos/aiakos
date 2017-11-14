@@ -14,7 +14,7 @@ from ..models import IdentityProvider
 from .ei import associate
 from .oauth import authorize
 
-User = get_user_model()
+Account = get_user_model()
 
 
 class SetPasswordForm(forms.Form):
@@ -38,7 +38,7 @@ class SetPasswordForm(forms.Form):
 
 
 @method_decorator(login_required, name='dispatch')
-class SettingsView(TemplateView):
+class AccountSettingsView(TemplateView):
 	template_name = "registration/settings.html"
 
 	@property
@@ -55,10 +55,10 @@ class SettingsView(TemplateView):
 		context['set_password_form'] = self.set_password_form
 		return context
 
-	def dispatch(self, request, user_id):
+	def dispatch(self, request, account_id):
 		try:
-			self.user = User.objects.get(pk=user_id)
-		except User.DoesNotExist:
+			self.user = Account.objects.get(pk=account_id)
+		except Account.DoesNotExist:
 			raise Http404()
 
 		return super().dispatch(request)

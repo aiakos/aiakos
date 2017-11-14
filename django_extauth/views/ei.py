@@ -49,6 +49,7 @@ def log_in(request):
 		if ei.trusted:
 			auth.login(request, ei.user)
 			pull_userdata_from(ei)
+			return ei.user
 		else:
 			messages.error(request, _("You have disabled logging in with this identity."))
 	else:
@@ -72,3 +73,4 @@ def log_in(request):
 
 		auth.login(request, ei.user)
 		pull_userdata_from(ei)
+		return ei.user

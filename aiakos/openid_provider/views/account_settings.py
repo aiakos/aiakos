@@ -7,11 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from .auth_request import AuthRequest, badrequest_handler
-
-
-class AccountSettingsRequest(AuthRequest):
-	redirect_uri_set = None
+from .oauth_request import OAuthRequest, badrequest_handler
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -22,7 +18,7 @@ class AccountSettingsView(View):
 		id_token_hint = request.GET.get('id_token_hint')
 
 		if id_token_hint:
-			req = AccountSettingsRequest(request, dict(
+			req = OAuthRequest.parse(dict(
 				response_type = '',
 				response_mode = 'query',
 				id_token_hint = id_token_hint,

@@ -32,8 +32,6 @@ v1.register(r'accounts', auth_v1.AccountViewSet, base_name='account')
 urlpatterns = [
 	url(r'^v1/', include(v1.urls)),
 
-	url(r'^$', login_required(RedirectView.as_view(url=settings.HOME_URL)), name='home'),
-
 	url(r'^admin/', admin.site.urls),
 
 	url(r'^', include('django_extauth.urls', namespace='extauth')),
