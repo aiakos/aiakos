@@ -61,20 +61,16 @@ MIDDLEWARE = [
 	'django_headers.HeadersMiddleware',
 	'django_origin.OriginMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
+	'aiakos.flow.FlowMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django_www_authenticate.WWWAuthenticateMiddleware',
-	'aiakos.multiuser.prepend_user.PrependUser',
 ]
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
-ABSOLUTE_URL_OVERRIDES = {
-	'auth.user': lambda u: "/%s/" % u.username,
-}
 
 ROOT_URLCONF = 'aiakos.urls'
 
@@ -91,6 +87,7 @@ TEMPLATES = [
 				'django.contrib.messages.context_processors.messages',
 				'django_extauth.context_processors.identity_providers',
 				'aiakos.bootstrap.theme',
+				'aiakos.flow.flow',
 			],
 		},
 	},
@@ -105,7 +102,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Configuration
 
-HOME_URL = os.getenv('HOME_URL', '/auth/settings/')
+HOME_URL = os.getenv('HOME_URL', '/')
 
 MEDIA_URL = os.getenv("MEDIA_URL", '/media/')
 

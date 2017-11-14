@@ -1,0 +1,12 @@
+{% extends 'narrow.html' %}
+{% load i18n staticfiles %}
+
+{% block content %}
+
+<h2>{% trans 'Sign out' %}</h2>
+<p class="lead">Do you want to sign out?</p>
+<form method="post">
+	<button type="submit" class="btn btn-primary btn-block btn-lg">{% trans 'Sign out' %}</button>
+</form>
+
+{% endblock %}

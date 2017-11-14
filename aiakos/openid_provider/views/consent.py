@@ -12,7 +12,6 @@ from ..errors import access_denied, consent_required
 from ..models import UserConsent
 from ..scopes import SCOPES
 from ..tokens import *
-from .auth_request import AuthRequest
 
 User = get_user_model()
 
@@ -26,7 +25,6 @@ class ConsentView(TemplateView):
 		context['user'] = self.user
 		context['client'] = self.auth_request.client
 		context['scope'] = {name: desc for name, desc in SCOPES.items() if name in self.req_untrusted_scope}
-		context['hidden_inputs'] = mark_safe('<input type="hidden" name="request" value="{}">'.format(self.auth_request.id))
 		return context
 
 	def dispatch(self, request, user_id):
@@ -38,14 +36,11 @@ class ConsentView(TemplateView):
 		if not request.user.has_perm('openid_provider:impersonate', self.user):
 			raise PermissionDenied()
 
-		self.auth_request = AuthRequest(request)
+		self.auth_request = self.request.flow.auth_request
 
-		self.req_scope = set(self.auth_request['scope'].split(' '))
-		self.req_scope &= set(['openid']) | set(SCOPES.keys())
+		self.req_scope = self.auth_request.scope & (set(['openid']) | set(SCOPES.keys()))
 
 		self.req_untrusted_scope = self.req_scope - self.auth_request.client.oauth_app.trusted_scopes
-
-		self.prompt = self.auth_request['prompt'].split(' ')
 
 		return super().dispatch(request)
 
@@ -53,7 +48,7 @@ class ConsentView(TemplateView):
 		uc = None
 
 		try:
-			if 'consent' in self.prompt:
+			if 'consent' in self.auth_request.prompt:
 				raise consent_required()
 
 			if self.req_untrusted_scope:
@@ -65,7 +60,7 @@ class ConsentView(TemplateView):
 					raise consent_required()
 
 		except consent_required:
-			if 'none' in self.prompt:
+			if 'none' in self.auth_request.prompt:
 				return self.auth_request.deny(interaction_required())
 
 			return super().get(request)
@@ -114,4 +109,5 @@ class ConsentView(TemplateView):
 			id_token = makeIDToken(request=self.request, client=self.auth_request.client, user=self.user, scope=scope, nonce=self.auth_request.nonce, at=access_token, c=code)
 			response['id_token'] = id_token
 
+		self.request.flow = None
 		return self.auth_request.respond(response)

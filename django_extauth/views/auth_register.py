@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django_sendmail import send_mail
 
 from ..models import ExternalIdentity, create_user
-from .auth_links import finish_registration_by_email_link, password_reset_link, login_link
+from .auth_links import finish_registration_by_email_link, login_link, password_reset_link
 
 
 class AuthRegisterForm(forms.Form):
@@ -48,20 +48,30 @@ class AuthRegisterForm(forms.Form):
 				setattr(user, k, v)
 			user.save()
 
+			confirm_email = finish_registration_by_email_link(site, email, user, **query)
+			if request.flow:
+				confirm_email += '?flow=' + request.flow.id
+
 			send_mail(email, 'registration/email/welcome', {
 				'user': user,
 				'email': email,
-				'confirm_email': finish_registration_by_email_link(site, email, user, **query),
+				'confirm_email': confirm_email,
 			}, request=request)
 			# Note: We can't log in here, as we can't log in in the 'else' case,
 			# and it would tell the attacker if this e-mail is in the database
 		else:
 
 			if ei.trusted:
+				reset_password = password_reset_link(site, ei.email, ei.user, **query)
+				log_in = login_link(ei.email)
+				if request.flow:
+					reset_password += '?flow=' + request.flow.id
+					log_in += '?flow=' + request.flow.id
+
 				send_mail(ei.email, 'registration/email/welcome-back', {
 					'user': ei.user,
-					'reset_password': password_reset_link(site, ei.email, ei.user, **query),
-					'log_in': login_link(ei.email),
+					'reset_password': reset_password,
+					'log_in': log_in,
 				}, request=request)
 			else:
 				send_mail(ei.email, 'registration/email/welcome-back', {

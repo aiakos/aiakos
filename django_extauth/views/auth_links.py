@@ -6,12 +6,13 @@ from six.moves.urllib.parse import urlencode
 
 from ..token import auth_token
 
+
 def login_link(email):
 	token = auth_token(email)
 	return settings.BASE_HOST + reverse('extauth:login-by-email', args=[token])
 
 def password_reset_link(site, email, user, **kwargs):
-	url = reverse('extauth:settings', args=[user.id])
+	url = reverse('extauth:account-settings', args=[user.id])
 	if kwargs:
 		url += '?' + urlencode(kwargs)
 	url += "#reset"

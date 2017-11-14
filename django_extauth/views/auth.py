@@ -16,6 +16,7 @@ from django.views.generic.base import TemplateView
 
 from aiakos.openid_provider.decorators import oauth_error_response
 from aiakos.openid_provider.errors import *
+from aiakos.openid_provider.flows import authorize
 from six.moves.urllib.parse import urlencode
 
 from .auth_login import AuthLoginForm
@@ -26,7 +27,7 @@ from .ei import log_in
 
 logger = logging.getLogger(__name__)
 
-def get_success_url(request, state=None):
+def get_success_url(request, account_id, state=None):
 	"""Ensure the user-originating redirection URL is safe."""
 	if state:
 		redirect_to = state[REDIRECT_FIELD_NAME]
@@ -40,17 +41,10 @@ def get_success_url(request, state=None):
 		url=redirect_to,
 		host=request.get_host()
 	)
-	if not url_is_safe:
-		return resolve_url(settings.LOGIN_REDIRECT_URL)
-	return redirect_to
-
-def get_error_url(request, error):
-	base = get_success_url(request)
-
-	if '?' in base:
-		return base + '&error=' + error
+	if url_is_safe:
+		return redirect_to
 	else:
-		return base + '?error=' + error
+		return reverse('extauth:account-home', args=[account_id])
 
 class AuthView(TemplateView):
 	template_name = 'registration/auth.html'
@@ -72,14 +66,6 @@ class AuthView(TemplateView):
 	@method_decorator(csrf_protect)
 	@method_decorator(never_cache)
 	def dispatch(self, request, *args, **kwargs):
-		if self.redirect_authenticated_user and self.request.user.is_authenticated:
-			redirect_to = get_success_url(self.request)
-			if redirect_to == self.request.path:
-				raise ValueError(
-					"Redirection loop for authenticated user detected. Check that "
-					"your LOGIN_REDIRECT_URL doesn't point to a login page."
-				)
-			return HttpResponseRedirect(redirect_to)
 		return super().dispatch(request, *args, **kwargs)
 
 	@property
@@ -125,7 +111,6 @@ class AuthView(TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context.update({
-			REDIRECT_FIELD_NAME: get_success_url(self.request),
 			'method': self.method,
 			'login_form': self.login_form,
 			'register_form': self.register_form,
@@ -159,9 +144,6 @@ class AuthView(TemplateView):
 	def post_ui(self, request):
 		method, form = self.get_request_form(request)
 
-		if method == 'cancel':
-			return HttpResponseRedirect(get_error_url(self.request, 'access_denied'))
-
 		if form:
 			if form.is_valid():
 				resp = form.process(request)
@@ -172,7 +154,7 @@ class AuthView(TemplateView):
 					messages.success(request, resp)
 
 				if hasattr(form, 'user') and form.user:
-					return HttpResponseRedirect(get_success_url(self.request).replace('%7Bid%7D', str(form.user.pk)))
+					return HttpResponseRedirect(get_success_url(request, form.user.pk))
 			else:
 				self._method = method
 				if method == 'login':
@@ -190,10 +172,6 @@ class AuthView(TemplateView):
 		method, form = self.get_request_form(request)
 
 		resp = {}
-
-		if method == 'cancel':
-			resp['redirect'] = get_error_url(self.requests, 'access_denied')
-			return resp
 
 		if not form:
 			raise invalid_request("Missing method parameter.")
@@ -218,7 +196,7 @@ class AuthView(TemplateView):
 			resp['message'] = form_resp
 
 		if hasattr(form, 'user') and form.user:
-			resp['redirect'] = get_success_url(self.request).replace('%7Bid%7D', str(form.user.pk))
+			resp['redirect'] = get_success_url(request, form.user.pk)
 
 		return resp
 
@@ -231,7 +209,7 @@ class AuthView(TemplateView):
 
 	def oauth_callback(self, request, state):
 		if request.external_identity:
-			log_in(request)
-			return HttpResponseRedirect(get_success_url(request, state))
+			user = log_in(request)
+			return HttpResponseRedirect(get_success_url(request, user.pk, state))
 
 		return HttpResponseRedirect(reverse('extauth:login') + '?' + urlencode({REDIRECT_FIELD_NAME: state[REDIRECT_FIELD_NAME]}))

@@ -81,7 +81,7 @@ class FinishRegistrationByEmail(TemplateView):
 		if ei.exists:
 			if ei.user in request.user.accounts or request.token["user_id"] == ei.user.id:
 				messages.success(request, _("Your email addres has been confirmed before."))
-				return redirect(settings.HOME_URL)
+				return redirect(ei.user.url)
 			else:
 				messages.error(request, _("Link expired."))
 				return redirect(settings.HOME_URL)
@@ -118,13 +118,13 @@ class FinishRegistrationByEmail(TemplateView):
 	def post_ui(self, request, user):
 		self._form = FinishRegistrationForm(request, user=user, data=request.POST)
 
-		if not self._form.is_valid():
+		if not self.form.is_valid():
 			return self.get(request, user)
 
-		resp = self._form.process(request)
+		resp = self.form.process(request)
 
 		messages.success(request, resp)
-		return redirect(settings.HOME_URL)
+		return redirect(self.form.user.url)
 
 	def post_api(self, request, user):
 		self._form = FinishRegistrationForm(request, user=user, data=request.POST)
@@ -142,6 +142,7 @@ class FinishRegistrationByEmail(TemplateView):
 
 		resp = {}
 		resp['message'] = self.form.process(request)
+		resp['redirect'] = self.form.user.url
 		return resp
 
 	@method_decorator(oauth_error_response(logger))

@@ -1,18 +1,20 @@
 {% extends 'narrow.html' %}
-{% load i18n staticfiles %}
+{% load i18n static %}
 
 {% block content %}
 
-<h2>{% trans 'Choose an account' %}</h2>
-<p class="lead">
-{% with auth_request.redirect_host as target %}
-	{% blocktrans %}to continue to {{target}}{% endblocktrans %}
-{% endwith %}
-</p>
+<h2>{% trans "Choose an account" %}</h2>
+{% if flow.auth_request %}
+	<p class="lead">
+	{% with flow.auth_request.client.oauth_app.name as appname %}
+		{% blocktrans %}to continue to {{appname}}{% endblocktrans %}
+	{% endwith %}
+	</p>
+{% endif %}
 
 <div class="list-group">
 	{% for account in request.user.accounts %}
-	<a href="{{account.consent_url}}" class="list-group-item">
+	<a href="{{account.url}}{% if flow %}?flow={{flow.id}}{% endif %}" class="list-group-item">
 		<div class="media">
 			<div class="media-left">
 				<!-- TODO avatars -->
@@ -26,7 +28,7 @@
 	</a>
 	{% endfor %}
 
-	<a href="{{login_url}}" class="list-group-item">
+	<a href="{{login_url}}{% if flow %}?flow={{flow.id}}{% endif %}" class="list-group-item">
 		<div class="media">
 			<div class="media-left">
 				<!-- TODO grayscale Aiakos logo -->
