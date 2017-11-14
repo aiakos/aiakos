@@ -20,8 +20,8 @@ class ClientManager(models.Manager):
 		if owner:
 			c.oauth_app.owner_id = owner.pk
 
-		if owner.oauth_app:
-			c.oauth_app.trusted_scopes = owner.oauth_app.trusted_scopes & getattr(c.oauth_app, 'new_trusted_scope', set())
+			if owner.oauth_app:
+				c.oauth_app.trusted_scopes = owner.oauth_app.trusted_scopes & getattr(c.oauth_app, 'new_trusted_scope', set())
 
 		if c.oauth_auth_method.startswith('client_secret_'):
 			c.client_secret = get_random_string(32)
