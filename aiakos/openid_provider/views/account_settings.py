@@ -24,11 +24,9 @@ class AccountSettingsView(View):
 				id_token_hint = id_token_hint,
 			))
 
-			for acc in request.user.accounts:
-				if req.id_hint['sub'] == str(acc.pk):
-					return redirect('extauth:settings', user_id=str(acc.pk))
+			if request.user.is_authenticated:
+				for acc in request.user.accounts:
+					if req.id_hint['sub'] == str(acc.pk):
+						return redirect('extauth:account-home', account_id=str(acc.pk))
 
-		if request.user.is_authenticated:
-			return redirect('extauth:settings', user_id=str(request.user.pk))
-
-		return redirect(settings.LOGIN_REDIRECT_URL)
+		return redirect('extauth:select-account')

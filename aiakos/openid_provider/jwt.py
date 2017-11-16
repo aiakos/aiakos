@@ -7,6 +7,8 @@ from jose import jwt
 
 from .models import RSAKey
 
+JWTError = jwt.JWTError
+
 
 def encode(myself, audience, payload, expires_in):
 	now = int(time())
@@ -41,10 +43,10 @@ def decode(myself, issuers, payload):
 				verify_aud = myself is not None,
 			),
 		)
-	except jwt.JWTError as e:
+	except JWTError as e:
 		try:
 			e.payload = jwt.get_unverified_claims(payload)
-		except jwt.JWTError:
+		except JWTError:
 			pass
 
 		raise

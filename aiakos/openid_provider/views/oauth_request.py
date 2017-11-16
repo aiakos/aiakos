@@ -44,6 +44,8 @@ class InputDict:  # We're treating all missing params as params with no value
 
 
 class OAuthRequest:
+	redirect_uri_param = None
+
 	@classmethod
 	def parse(kind, data):
 		oauth_req = InputDict(data)
