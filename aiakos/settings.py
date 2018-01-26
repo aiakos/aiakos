@@ -68,6 +68,10 @@ MIDDLEWARE = [
 	'django_www_authenticate.WWWAuthenticateMiddleware',
 ]
 
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': [],
+}
+
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
