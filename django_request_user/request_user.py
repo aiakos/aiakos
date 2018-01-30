@@ -44,3 +44,12 @@ def set_request_user(request, user):
 		request._user = None
 
 request_user = property(get_request_user, set_request_user)
+
+
+def drf_get_request_user(request):
+	return request._request.user
+
+def drf_set_request_user(request, user):
+	request._request.user = user
+
+drf_request_user = property(drf_get_request_user, drf_set_request_user)
