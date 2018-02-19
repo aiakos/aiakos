@@ -41,10 +41,17 @@ def get_success_url(request, account_id, state=None):
 		url=redirect_to,
 		host=request.get_host()
 	)
-	if url_is_safe:
-		return redirect_to
-	else:
-		return reverse('extauth:account-home', args=[account_id])
+	if not url_is_safe:
+		redirect_to = reverse('extauth:account-home', args=[account_id])
+
+	if request.flow:
+		if '?' in redirect_to:
+			redirect_to += '&flow=' + request.flow.id
+		else:
+			redirect_to += '?flow=' + request.flow.id
+
+	return redirect_to
+
 
 class AuthView(TemplateView):
 	template_name = 'registration/auth.html'
