@@ -6,7 +6,7 @@ chardet==3.0.4
 cssutils==1.0.2
 dj-database-url==0.4.2
 dj12==0.3.0
-Django==1.11.7
+Django==1.11.29
 django-cache-url==2.0.0
 django-crispy-forms==1.7.0
 django-filter==1.1.0
