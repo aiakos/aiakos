@@ -31,7 +31,7 @@ pycrypto==2.6.1
 pynliner3==0.6
 python-jose==1.4.0
 pytz==2017.3
-PyYAML==3.12
+PyYAML==5.4
 raven==6.3.0
 requests==2.18.4
 rsa==3.4.2
