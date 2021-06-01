@@ -36,7 +36,7 @@ raven==6.3.0
 requests==2.18.4
 rsa==3.4.2
 six==1.11.0
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.12.2
 whitenoise==3.3.1
 git+https://gitlab.com/aiakos/django-modular-user.git@d8ec0f8cfd6ddf99551c38e687ed7eb65bc7f062
